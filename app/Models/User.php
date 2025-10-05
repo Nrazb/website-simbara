@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -44,5 +46,38 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class, 'user_id');
+    }
+    public function maintenanceItems()
+    {
+        return $this->hasMany(Item::class, 'maintenance_unit_id');
+    }
+    public function itemRequests()
+    {
+        return $this->hasMany(ItemRequest::class);
+    }
+    public function mutationItemRequestsAsMaintenanceUnit()
+    {
+        return $this->hasMany(MutationItemRequest::class, 'maintenance_unit_id');
+    }
+    public function mutationItemRequestsFrom()
+    {
+        return $this->hasMany(MutationItemRequest::class, 'from_user_id');
+    }
+    public function mutationItemRequestsTo()
+    {
+        return $this->hasMany(MutationItemRequest::class, 'to_user_id');
+    }
+    public function maintenanceItemRequests()
+    {
+        return $this->hasMany(MaintenanceItemRequest::class);
+    }
+    public function removeItemRequests()
+    {
+        return $this->hasMany(RemoveItemRequest::class);
     }
 }
