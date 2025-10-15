@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('mutation_item_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('maintenance_unit_id')->constrained('users')->onDelete('cascade');
-            $table->string('item_id')->nullable();
-            $table->foreign('item_id')->references('id')->on('items')->nullOnDelete();
-            $table->foreignId('from_user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('to_user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('maintenance_unit_id')->references('id')->on('users')->noActionOnDelete();
+            $table->string('item_id');
+            $table->foreign('item_id')->references('id')->on('items')->noActionOnDelete();
+            $table->foreignId('from_user_id')->references('id')->on('users')->noActionOnDelete();
+            $table->foreignId('to_user_id')->references('id')->on('users')->noActionOnDelete();
             $table->boolean('unit_confirmed')->default(false);
             $table->boolean('recipient_confirmed')->default(false);
             $table->timestamps();
