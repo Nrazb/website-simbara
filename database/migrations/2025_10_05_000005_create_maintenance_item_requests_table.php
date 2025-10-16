@@ -10,12 +10,12 @@ return new class extends Migration
     {
         Schema::create('maintenance_item_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('item_id')->nullable();
-            $table->foreign('item_id')->references('id')->on('items')->nullOnDelete();
-            $table->enum('item_status', ['good', 'damaged', 'lost', 'repaired'])->nullable();
+            $table->foreignId('user_id')->constrained('users')->noActionOnDelete();
+            $table->string('item_id');
+            $table->foreign('item_id')->references('id')->on('items')->noActionOnDelete();
+            $table->enum('item_status', ['GOOD', 'DAMAGED', 'REPAIRED'])->nullable();
             $table->string('information')->nullable();
-            $table->enum('request_status', ['pending', 'approved', 'rejected']);
+            $table->enum('request_status', ['PENDING', 'PROCESS', 'COMPLETED', 'REJECTED', 'REMOVED']);
             $table->boolean('unit_confirmed')->default(false);
             $table->timestamps();
             $table->softDeletes();

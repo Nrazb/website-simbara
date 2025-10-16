@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('item_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('type_id')->nullable()->constrained('types')->nullOnDelete();
+            $table->foreignId('user_id')->constrained('users')->noActionOnDelete();
+            $table->foreignId('type_id')->constrained('types')->noActionOnDelete();
             $table->string('name');
             $table->string('detail');
             $table->integer('qty');

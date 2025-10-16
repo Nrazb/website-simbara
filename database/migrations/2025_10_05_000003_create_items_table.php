@@ -10,15 +10,16 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('type_id')->nullable()->constrained('types')->nullOnDelete();
-            $table->foreignId('maintenance_unit_id')->nullable()->constrained('users');
+            $table->foreignId('user_id')->constrained('users')->noActionOnDelete();
+            $table->foreignId('type_id')->constrained('types')->noActionOnDelete();
+            $table->foreignId('maintenance_unit_id')->constrained('users')->noActionOnDelete();
             $table->string('code')->unique();
             $table->integer('order_number')->unique();
             $table->string('name');
             $table->integer('cost');
             $table->date('acquisition_date');
             $table->integer('acquisition_year');
+            $table->enum('status', ['AVAILABLE', 'BORROWED'])->default('AVAILABLE');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -24,6 +24,7 @@ class Item extends Model
         'cost',
         'acquisition_date',
         'acquisition_year',
+        'status',
     ];
 
     public function user()
