@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\ItemApiController;
 use App\Http\Controllers\Api\MutationItemRequestApiController;
 use App\Http\Controllers\Api\MaintenanceItemRequestApiController;
 use App\Http\Controllers\Api\RemoveItemRequestApiController;
+use App\Http\Controllers\AuthController;
+
+Route::post('/login', [AuthController::class, 'apiLogin']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::resource('users', UserApiController::class);

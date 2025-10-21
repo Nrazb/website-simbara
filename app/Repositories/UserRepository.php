@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -32,5 +34,22 @@ class UserRepository implements UserRepositoryInterface
     {
         $user = User::findOrFail($id);
         return $user->delete();
+    }
+
+    public function attemptLogin(array $credentials, $remember = false)
+    {
+        return Auth::attempt([
+            'code' => $credentials['code'],
+            'password' => $credentials['password'],
+        ], $remember);
+    }
+
+    public function attemptApiLogin(array $credentials)
+    {
+        $user = User::where('code', $credentials['code'])->first();
+        if ($user && Hash::check($credentials['password'], $user->password)) {
+            return $user;
+        }
+        return null;
     }
 }

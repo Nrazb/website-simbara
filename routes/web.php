@@ -8,24 +8,25 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MutationItemRequestController;
 use App\Http\Controllers\MaintenanceItemRequestController;
 use App\Http\Controllers\RemoveItemRequestController;
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/login', function () {
-    return view('auth.login');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+    Route::resource('types', TypeController::class);
+    Route::resource('users', UserController::class);
+    Route::resource('item-requests', ItemRequestController::class);
+    Route::resource('items', ItemController::class);
+    Route::resource('mutation-item-requests', MutationItemRequestController::class);
+    Route::resource('maintenance-item-requests', MaintenanceItemRequestController::class);
+    Route::resource('remove-item-requests', RemoveItemRequestController::class);
 });
-
-// Route Dashboard
-Route::get('/dashboard', function () {
-    return view('dashboard'); // ganti dengan view dashboard kamu
-})->name('dashboard');
-
-Route::resource('types', TypeController::class);
-Route::resource('users', UserController::class);
-Route::resource('item-requests', ItemRequestController::class);
-Route::resource('items', ItemController::class);
-Route::resource('mutation-item-requests', MutationItemRequestController::class);
-Route::resource('maintenance-item-requests', MaintenanceItemRequestController::class);
-Route::resource('remove-item-requests', RemoveItemRequestController::class);
