@@ -22,7 +22,6 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    // Handle web login POST
     public function login(LoginRequest $request)
     {
         $credentials = $request->only('code', 'password');
@@ -32,7 +31,6 @@ class AuthController extends Controller
         return back()->withErrors(['code' => 'Code or Password is incorrect'])->withInput($request->only('code'));
     }
 
-    // Handle API login
     public function apiLogin(LoginRequest $request)
     {
         $credentials = $request->only('code', 'password');
@@ -41,7 +39,7 @@ class AuthController extends Controller
             $token = $user->createToken('api_token')->plainTextToken;
             return response()->json([
                 'token' => $token,
-                'user' => $user,
+                'data' => $user,
             ]);
         }
         return response()->json(['error' => 'Code or Password is incorrect'], 401);

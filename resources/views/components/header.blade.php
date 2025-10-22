@@ -5,9 +5,9 @@
         </button>
         <div class="flex flex-col leading-tight">
             <h1 class="text-lg md:text-xl font-semibold flex items-center gap-2 px-2">
-                Hello User Yang Lagi Login 👋
+                Hello {{ auth()->user()->name }}
             </h1>
-            <p class="text-gray-400 text-xs md:text-sm px-2">Ini Dashboard</p>
+            <p class="text-gray-400 text-xs md:text-sm px-2">Dashboard</p>
         </div>
     </div>
 
