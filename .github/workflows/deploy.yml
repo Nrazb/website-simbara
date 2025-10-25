@@ -1,0 +1,68 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, bcmath, curl, json, zip
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Copy .env file
+        run: |
+          cat <<EOF > .env
+          ${{ secrets.ENV }}
+          EOF
+
+      - name: Build frontend assets
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci
+            npm run build
+          fi
+        shell: bash
+
+      - name: Upload built project to VPS
+        uses: appleboy/scp-action
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: |
+            ./
+            !node_modules/
+            !vendor/
+            !storage/
+            !.git/
+            !.github/
+          target: /var/www/wwwroot/simbara
+
+      - name: Run post-deploy commands on VPS
+        uses: appleboy/ssh-action
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            cd /var/www/wwwroot/simbara
+            php artisan down
+            composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+            php artisan optimize
+            php artisan up
