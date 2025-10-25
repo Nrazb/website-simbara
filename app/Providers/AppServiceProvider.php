@@ -17,6 +17,7 @@ use App\Repositories\MaintenanceItemRequestRepositoryInterface;
 use App\Repositories\MaintenanceItemRequestRepository;
 use App\Repositories\RemoveItemRequestRepositoryInterface;
 use App\Repositories\RemoveItemRequestRepository;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,6 +40,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('viewApiDocs', function () {
+            return true;
+        });
     }
 }
