@@ -50,7 +50,7 @@ jobs:
             !storage/
             !.git/
             !.github/
-          target: /var/www/wwwroot/simbara
+          target: /www/wwwroot/simbara
 
       - name: Run post-deploy commands on VPS
         uses: appleboy/ssh-action@master
@@ -59,7 +59,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH }}
           script: |
-            cd /var/www/wwwroot/simbara
+            cd /www/wwwroot/simbara
             php artisan down
             composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
             php artisan optimize
