@@ -6,53 +6,46 @@
       Edit Usulan
     </h2>
 
-    <form method="POST" action="#" class="space-y-6">
+    <!-- Form tunggal -->
+    <form id="editForm" method="POST" class="space-y-6">
       @csrf
+      @method('PUT')
+      <input type="hidden" name="user_id" value="{{ Auth::id() }}">
+      <input type="hidden" name="id" id="edit_id">
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Nama Barang <span class="text-red-500">*</span>
-          </label>
-          <input type="text" name="nama_barang" placeholder="Masukan nama barang"
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nama Barang <span class="text-red-500">*</span></label>
+          <input type="text" name="name" id="edit_name"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Jenis Barang <span class="text-red-500">*</span>
-          </label>
-          <select name="jenis_barang"
+          <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Barang <span class="text-red-500">*</span></label>
+          <select name="type_id" id="edit_type"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
-            <option value="" disabled selected>Pilih Jenis</option>
-            <option value="Elektronik">Elektronik</option>
-            <option value="Kantor">Perlengkapan Kantor</option>
-            <option value="Lainnya">Lainnya</option>
+            @foreach ($types as $type)
+              <option value="{{ $type->id }}">{{ $type->name }}</option>
+            @endforeach
           </select>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Spesifikasi <span class="text-red-500">*</span>
-          </label>
-          <input type="text" name="spesifikasi" placeholder="Masukan spesifikasi"
+          <label class="block text-sm font-medium text-gray-700 mb-1">Spesifikasi <span class="text-red-500">*</span></label>
+          <input type="text" name="detail" id="edit_detail"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Quantity <span class="text-red-500">*</span>
-          </label>
-          <input type="number" name="jumlah" placeholder="Masukan kuantitas barang"
+          <label class="block text-sm font-medium text-gray-700 mb-1">Quantity <span class="text-red-500">*</span></label>
+          <input type="number" name="qty" id="edit_qty"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Alasan <span class="text-red-500">*</span>
-        </label>
-        <textarea name="alasan" rows="3" placeholder="Input description"
+        <label class="block text-sm font-medium text-gray-700 mb-1">Alasan <span class="text-red-500">*</span></label>
+        <textarea name="reason" id="edit_reason" rows="3"
           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required></textarea>
       </div>
 
@@ -72,33 +65,44 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const openButtons = document.querySelectorAll('[data-modal-target]');
+  const modal = document.getElementById('edit-usulan');
+  const modalContent = modal.querySelector('div.bg-white');
+  const closeBtn = modal.querySelector('#closeModal');
+  const editForm = modal.querySelector('#editForm');
 
-  openButtons.forEach(button => {
-    const modalId = button.getAttribute('data-modal-target');
-    const modal = document.getElementById(modalId);
-    if (!modal) return;
+  document.querySelectorAll('button[data-modal-target="edit-usulan"]').forEach(button => {
+    button.addEventListener('click', () => {
+      const row = button.closest('tr');
+      const id = row.dataset.id;
+      const name = row.querySelector('td:nth-child(1)').innerText.trim();
+      const detail = row.querySelector('td:nth-child(2)').innerText.trim();
+      const type = row.querySelector('td:nth-child(3)').dataset.typeId;
+      const qty = row.querySelector('td:nth-child(4)').innerText.trim();
+      const reason = row.querySelector('td:nth-child(5)').innerText.trim();
 
-    const modalContent = modal.querySelector('div.bg-white');
-    const closeBtn = modal.querySelector('#closeModal');
+      editForm.action = `/item-requests/${id}`;
+      editForm.querySelector('#edit_id').value = id;
+      editForm.querySelector('#edit_name').value = name;
+      editForm.querySelector('#edit_type').value = type;
+      editForm.querySelector('#edit_detail').value = detail;
+      editForm.querySelector('#edit_qty').value = qty;
+      editForm.querySelector('#edit_reason').value = reason;
 
-    const openModal = () => {
       modal.classList.remove('hidden');
       setTimeout(() => {
         modalContent.classList.remove('scale-95', 'opacity-0');
         modalContent.classList.add('scale-100', 'opacity-100');
       }, 10);
-    };
-
-    const closeModal = () => {
-      modalContent.classList.remove('scale-100', 'opacity-100');
-      modalContent.classList.add('scale-95', 'opacity-0');
-      setTimeout(() => modal.classList.add('hidden'), 150);
-    };
-
-    button.addEventListener('click', openModal);
-    if (closeBtn) closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    });
   });
+
+  const closeModal = () => {
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => modal.classList.add('hidden'), 150);
+  };
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 });
 </script>

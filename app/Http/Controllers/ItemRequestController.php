@@ -5,25 +5,30 @@ namespace App\Http\Controllers;
 use App\Repositories\ItemRequestRepositoryInterface;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
+use App\Repositories\TypeRepositoryInterface;
 
 class ItemRequestController extends Controller
 {
     protected $itemRequestRepository;
+    protected $typeRepository;
 
-    public function __construct(ItemRequestRepositoryInterface $itemRequestRepository)
+    public function __construct(ItemRequestRepositoryInterface $itemRequestRepository, TypeRepositoryInterface $typeRepository)
     {
         $this->itemRequestRepository = $itemRequestRepository;
+        $this->typeRepository = $typeRepository;
     }
 
     public function index()
     {
-        $itemRequests = $this->itemRequestRepository->all();
-        return view('item_requests.index', compact('itemRequests'));
+        $itemRequests = $this->itemRequestRepository->all()->load(['type', 'user']);
+        $types = $this->typeRepository->all();
+        return view('item_requests.index', compact('itemRequests', 'types'));
     }
 
     public function create()
     {
-        return view('item_requests.create');
+        $types = $this->typeRepository->all();
+        return view('item_requests.create', compact('types'));
     }
 
     public function store(StoreItemRequest $request)

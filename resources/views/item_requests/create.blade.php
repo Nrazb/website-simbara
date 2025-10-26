@@ -6,15 +6,15 @@
       Tambah Usulan Barang Baru
     </h2>
 
-    <form method="POST" action="#" class="space-y-6">
+    <form method="POST" action="{{ route('item-requests.store') }}" class="space-y-6">
       @csrf
-
+      <input type="text" name="user_id" value="{{ Auth::id() }}" hidden>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Nama Barang <span class="text-red-500">*</span>
           </label>
-          <input type="text" name="nama_barang" placeholder="Masukan nama barang"
+          <input type="text" name="name" placeholder="Masukan nama barang"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
         </div>
 
@@ -22,12 +22,11 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Jenis Barang <span class="text-red-500">*</span>
           </label>
-          <select name="jenis_barang"
+          <select name="type_id"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
-            <option value="" disabled selected>Pilih Jenis</option>
-            <option value="Elektronik">Elektronik</option>
-            <option value="Kantor">Perlengkapan Kantor</option>
-            <option value="Lainnya">Lainnya</option>
+            @foreach ($types as $type)
+                <option value="{{ $type->id }}">{{ $type->name }}</option>
+            @endforeach
           </select>
         </div>
 
@@ -35,7 +34,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Spesifikasi <span class="text-red-500">*</span>
           </label>
-          <input type="text" name="spesifikasi" placeholder="Masukan spesifikasi"
+          <input type="text" name="detail" placeholder="Masukan spesifikasi"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
         </div>
 
@@ -43,7 +42,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Quantity <span class="text-red-500">*</span>
           </label>
-          <input type="number" name="jumlah" placeholder="Masukan kuantitas barang"
+          <input type="number" name="qty" placeholder="Masukan kuantitas barang"
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
         </div>
       </div>
@@ -52,7 +51,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">
           Alasan <span class="text-red-500">*</span>
         </label>
-        <textarea name="alasan" rows="3" placeholder="Input description"
+        <textarea name="reason" rows="3" placeholder="Input description"
           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required></textarea>
       </div>
 

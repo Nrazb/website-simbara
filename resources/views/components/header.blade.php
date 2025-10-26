@@ -1,20 +1,5 @@
-<header class="flex items-center justify-between bg-white rounded-xl shadow-md px-4 py-3 md:px-8">
-    <div class="flex items-center gap-3">
-        <button id="hamburger" class="md:hidden text-blue-900 text-2xl">
-            <i class="fas fa-bars"></i>
-        </button>
-        <div class="flex flex-col leading-tight">
-            <h1 class="text-lg md:text-xl font-semibold flex items-center gap-2 px-2">
-                Hello {{ auth()->user()->name }}
-            </h1>
-            <p class="text-gray-400 text-xs md:text-sm px-2">Dashboard</p>
-        </div>
-    </div>
-
-    <div class="flex items-center">
-        <button class="hover:bg-gray-200 rounded-xl p-2 md:p-3 transition">
-            <i class="fas fa-bell text-gray-700 text-base md:text-lg"></i>
-        </button>
+<header class="flex items-center justify-end rounded-xl py-3 md:px-8">
+    <div class="relative flex items-center">
         <div class="flex items-center rounded-xl px-2 md:px-3 py-2 cursor-pointer transition">
             <div class="relative inline-block text-left">
                 <button id="userMenuButton" class="flex items-center gap-2 focus:outline-none">

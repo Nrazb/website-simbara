@@ -1,5 +1,5 @@
 <div id="sidebar"
-    class="fixed md:relative z-40 w-25 md:w-64 bg-blue-900 text-white h-screen rounded-3xl flex flex-col py-4 transition-transform duration-300 transform -translate-x-full md:translate-x-0">
+    class="fixed md:relative z-40 w-25 md:w-64 bg-blue-900 text-white h-screen md:h-auto rounded-3xl flex flex-col py-4 transition-transform duration-300 transform -translate-x-full md:translate-x-0">
 
     <div class="relative px-3 md:px-6 mb-6">
         <button id="closeSidebar"
@@ -24,7 +24,7 @@
                     <span class="text-xs md:text-base">Dashboard</span>
                 </a>
 
-                <a href="/itemrequests"
+                <a href="{{ route('item-requests.index') }}"
                 class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
                         hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
                     <i class="fas fa-file-alt text-lg"></i>
@@ -66,12 +66,14 @@
                     <span class="text-xs md:text-base">Penghapusan</span>
                 </a>
 
+                @if(Auth::user()->role === 'ADMIN')
                 <a href="#"
                 class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
                         hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
                     <i class="fas fa-print text-lg"></i>
                     <span class="text-xs md:text-base">Cetak laporan</span>
                 </a>
+                @endif
             </div>
         </nav>
     </div>

@@ -20,7 +20,7 @@ class TypeController extends Controller
     public function index()
     {
         $types = $this->typeRepository->all();
-        return view('types.index', compact('types'));
+        return view('item_requests.create', compact('types'));
     }
 
     public function create()

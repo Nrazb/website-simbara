@@ -48,13 +48,14 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-4 py-3 font-medium text-gray-800">Tv</td>
-                    <td class="px-4 py-3">2 inch</td>
-                    <td class="px-4 py-3">Monitor</td>
-                    <td class="px-4 py-3">10</td>
-                    <td class="px-4 py-3">Buat nonton bro</td>
-                    <td class="px-4 py-3">Upa Tik</td>
+                @foreach ($itemRequests as $data )
+                <tr class="hover:bg-gray-50 transition" data-id="{{ $data->id }}">
+                    <td class="px-4 py-3 font-medium text-gray-800">{{ $data->name}}</td>
+                    <td class="px-4 py-3">{{ $data->detail}}</td>
+                    <td class="px-4 py-3" data-type-id="{{ $data->type->id }}">{{ $data->type->name}}</td>
+                    <td class="px-4 py-3">{{ $data->qty}}</td>
+                    <td class="px-4 py-3">{{ $data->reason}}</td>
+                    <td class="px-4 py-3">{{ $data->user->name}}</td>
                     <td class="px-4 py-3 text-center">
                         <div class="flex justify-center space-x-2">
                             <button class="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg">
@@ -63,35 +64,37 @@
                             <button class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg" data-modal-target="edit-usulan">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <button class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg">
+                            <button class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg" data-modal-target="delete-modal">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
                     </td>
                 </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
 
     <!-- Tampilan kartu untuk bentuk mobile-->
     <div class="block md:hidden space-y-3">
-        <div class="border border-gray-200 rounded-xl p-3 shadow-sm">
+        @foreach ($itemRequests as $data )
+        <div class="border border-gray-200 rounded-xl p-3 shadow-sm" data-id="{{ $data->id }}">
             <div class="flex justify-between items-center">
-                <h3 class="font-semibold text-gray-800 text-lg">Tv</h3>
+                <h3 class="font-semibold text-gray-800 text-lg">{{ $data->name}}</h3>
                 <input type="checkbox" class="h-4 w-4">
             </div>
             <div class="mt-2 text-sm text-gray-600 space-y-1">
-                <p><span class="font-medium">Spesifikasi:</span> 2 inch</p>
-                <p><span class="font-medium">Jenis:</span> Monitor</p>
-                <p><span class="font-medium">Quantity:</span> 10</p>
-                <p><span class="font-medium">Alasan:</span> Buat nonton bro</p>
-                <p><span class="font-medium">Unit:</span> Upa Tik</p>
+                <p><span class="font-medium">Spesifikasi:</span> {{ $data->detail}}</p>
+                <p><span class="font-medium">Jenis:</span> {{ $data->type->name}}</p>
+                <p><span class="font-medium">Quantity:</span> {{ $data->qty}}</p>
+                <p><span class="font-medium">Alasan:</span> {{ $data->reason}}</p>
+                <p><span class="font-medium">Unit:</span> {{ $data->user->name}}</p>
             </div>
             <div class="flex justify-end space-x-2 mt-3">
                 <button class="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg text-xs">
                     <i class="fa-regular fa-eye"></i>
                 </button>
-                <button class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg text-xs">
+                <button class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg text-xs" data-modal-target="edit-usulan">
                     <i class="fa-solid fa-pencil"></i>
                 </button>
                 <button class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg text-xs" data-modal-target="delete-modal" >
@@ -99,8 +102,7 @@
                 </button>
             </div>
         </div>
-
-
+        @endforeach
     </div>
 
     <div class="flex flex-col sm:flex-row justify-between items-center mt-4 text-xs sm:text-sm text-gray-500 gap-3">
@@ -122,7 +124,61 @@
             <button class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">&gt;</button>
         </div>
     </div>
+
+    <!-- Modal Hapus -->
+    <div id="delete-modal"
+    class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto p-2 sm:p-4 transition duration-200 ease-out">
+        <div class="bg-white w-[90%] sm:w-[80%] md:w-full max-w-md rounded-xl shadow-lg p-6 relative transform scale-95 opacity-0 transition-all duration-200 ease-out">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 text-center">Hapus Usulan</h2>
+            <p class="text-sm text-gray-600 text-center mb-6">Apakah Anda yakin ingin menghapus usulan untuk barang ini? Tindakan ini tidak dapat dibatalkan.</p>
+
+            <form id="deleteForm" method="POST">
+            @csrf
+            @method('DELETE')
+            <div class="flex justify-center gap-3">
+                <button type="button" id="closeDeleteModal" class="px-6 py-2 rounded-lg border border-gray-400 hover:bg-gray-100">Batal</button>
+                <button type="submit" class="px-6 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600">Hapus</button>
+            </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteModalContent = deleteModal.querySelector('div.bg-white');
+    const closeDeleteBtn = deleteModal.querySelector('#closeDeleteModal');
+    const deleteForm = deleteModal.querySelector('#deleteForm');
+
+    document.querySelectorAll('button[data-modal-target="delete-modal"]').forEach(button => {
+        button.addEventListener('click', () => {
+            const row = button.closest('tr') || button.closest('div[data-id]');
+            const id = row.dataset.id;
+
+            // Set action form delete dinamis
+            deleteForm.action = `/item-requests/${id}`;
+
+            // Tampilkan modal
+            deleteModal.classList.remove('hidden');
+            setTimeout(() => {
+                deleteModalContent.classList.remove('scale-95', 'opacity-0');
+                deleteModalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        });
+    });
+
+    const closeDeleteModal = () => {
+        deleteModalContent.classList.remove('scale-100', 'opacity-100');
+        deleteModalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => deleteModal.classList.add('hidden'), 150);
+    };
+
+    closeDeleteBtn.addEventListener('click', closeDeleteModal);
+    deleteModal.addEventListener('click', e => { if(e.target === deleteModal) closeDeleteModal(); });
+});
+</script>
+
 
 
 @endsection
