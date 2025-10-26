@@ -11,7 +11,6 @@
     @include('components.sidebar')
 
     <main class="flex-1 flex flex-col bg-gray-50 p-4">
-        @include('components.header')
         <div class="flex-1 p-4 overflow-auto">
             @yield('content')
         </div>
