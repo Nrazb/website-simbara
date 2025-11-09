@@ -5,25 +5,32 @@ namespace App\Http\Controllers;
 use App\Repositories\ItemRepositoryInterface;
 use App\Http\Requests\StoreItemRequestForm;
 use App\Http\Requests\UpdateItemRequestForm;
+use App\Models\User;
+use App\Repositories\TypeRepositoryInterface;
 
 class ItemController extends Controller
 {
     protected $itemRepository;
+    protected $typeRepository;
 
-    public function __construct(ItemRepositoryInterface $itemRepository)
+    public function __construct(ItemRepositoryInterface $itemRepository, TypeRepositoryInterface $typeRepository)
     {
         $this->itemRepository = $itemRepository;
+        $this->typeRepository = $typeRepository;
     }
 
     public function index()
     {
         $items = $this->itemRepository->all();
-        return view('items.index', compact('items'));
+        $types = $this->typeRepository->all();
+        return view('items.index', compact('items', 'types'));
     }
 
     public function create()
     {
-        return view('items.create');
+        $maintenanceUnits = User::where('role', 'MAINTENANCE_UNIT')->get();
+        $types = $this->typeRepository->all();
+        return view('items.create', compact('types', 'maintenanceUnits'));
     }
 
     public function store(StoreItemRequestForm $request)

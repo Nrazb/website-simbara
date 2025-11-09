@@ -44,7 +44,7 @@
     <div class="bg-white shadow-lg rounded-lg p-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-bold text-black">List Barang</h2>
-            <a href="#" class="text-blue-400 hover:underline text-sm font-medium">View All</a>
+            <a href="{{ route('items.index') }}" class="text-blue-400 hover:underline text-sm font-medium">View All</a>
         </div>
         <table class="w-full text-center border border-gray-200">
             <thead class="bg-gray-100">

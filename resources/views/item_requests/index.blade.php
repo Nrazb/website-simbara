@@ -16,7 +16,7 @@
 <div class="p-4 sm:p-6 bg-white rounded-2xl shadow-sm">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div class="relative flex-1 min-w-[200px] max-w-sm">
-            <input type="text" placeholder="Search Item"
+            <input type="text" placeholder="Search Item" value="{{ request('search') }}" oninput="this.form.submit()"
                 class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
         </div>
@@ -26,10 +26,6 @@
                 <i class="fa-solid fa-plus"></i>
                 <span>Tambah Usulan</span>
             </button>
-            {{-- <button class="border border-gray-300 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-1">
-                <i class="fa-solid fa-upload"></i>
-                <span>Export Data</span>
-            </button> --}}
         </div>
     </div>
 

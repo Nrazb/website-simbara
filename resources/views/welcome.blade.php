@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="min-h-screen flex flex-col">
-    <!-- Header -->
     <header class="flex justify-between items-center px-6 py-4 shadow-md">
         <div class="flex items-center gap-3">
             <img src="{{ asset('images/polindra.png') }}" alt="Logo" class="w-12 h-12">
