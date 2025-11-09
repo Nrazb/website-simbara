@@ -42,23 +42,23 @@
                     <span class="text-xs md:text-base">Data Barang</span>
                 </a>
 
-                <a href="#"
-                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
-                        hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
+                <a href="{{ route('mutation-item-requests.index')}}"
+                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
+                {{ Request::is('mutation-item-requests') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
                     <i class="fas fa-exchange-alt text-lg"></i>
                     <span class="text-xs md:text-base">Mutasi</span>
                 </a>
 
-                <a href="#"
-                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
-                        hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
+                <a href="{{ route('maintenance-item-requests.index')}}"
+                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
+                {{ Request::is('maintenance-item-requests') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
                     <i class="fas fa-tools text-lg"></i>
                     <span class="text-xs md:text-base">Pemeliharaan</span>
                 </a>
 
-                <a href="#"
-                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
-                        hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
+                <a href="{{ route('remove-item-requests.index')}}"
+                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
+                {{ Request::is('remove-item-requests') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
                     <i class="fas fa-trash text-lg"></i>
                     <span class="text-xs md:text-base">Penghapusan</span>
                 </a>
