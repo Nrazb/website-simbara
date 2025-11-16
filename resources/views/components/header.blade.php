@@ -11,7 +11,7 @@
 
                 <div id="userDropdown"
                     class="hidden absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
-                    <form method="POST" action="/logout"
+                    <form method="POST" action="{{ route('logout') }}"
                         class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-blue-100">
                         @csrf
                         <i class="fa-solid fa-arrow-right-from-bracket text-red-600"></i>

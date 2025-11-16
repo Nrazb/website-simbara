@@ -31,6 +31,16 @@ class AuthController extends Controller
         return back()->withErrors(['code' => 'Code or Password is incorrect'])->withInput($request->only('code'));
     }
 
+    public function logout(Request $request)
+    {
+        Auth::logout(); 
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('success', 'You have been logged out.');
+    }
+
     public function apiLogin(LoginRequest $request)
     {
         $credentials = $request->only('code', 'password');

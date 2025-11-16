@@ -11,6 +11,15 @@ class StoreItemRequestForm extends FormRequest
         return true;
     }
 
+    public function prepareForValidation()
+    {
+        if ($this->has('code') && $this->has('order_number')) {
+            $this->merge([
+                'id' => $this->get('code') . '-' . $this->get('order_number'),
+            ]);
+        }
+    }
+
     public function rules()
     {
         return [

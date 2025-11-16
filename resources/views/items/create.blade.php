@@ -27,7 +27,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                     NUP <span class="text-red-500">*</span>
                 </label>
-                <input type="text" name="order_number" placeholder="Masukan NUP barang"
+                <input type="number" name="order_number" placeholder="Masukan NUP barang"
                     class="w-full border border-blue-900 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
             </div>
             <div>
@@ -53,7 +53,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                     Nilai BMN <span class="text-red-500">*</span>
                 </label>
-                <input type="" name="cost" placeholder="Masukan harga barang"
+                <input type="number" name="cost" placeholder="Masukan harga barang"
                     class="w-full border border-blue-900 rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900" required>
             </div>
             <div>

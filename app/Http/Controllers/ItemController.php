@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ItemsExport;
 use App\Repositories\ItemRepositoryInterface;
 use App\Http\Requests\StoreItemRequestForm;
 use App\Http\Requests\UpdateItemRequestForm;
+use App\Imports\ItemsImport;
 use App\Models\User;
 use App\Repositories\TypeRepositoryInterface;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ItemController extends Controller
 {
@@ -19,10 +23,14 @@ class ItemController extends Controller
         $this->typeRepository = $typeRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $items = $this->itemRepository->all();
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 5); // default 10
+
+        $items = $this->itemRepository->all($search, $perPage);
         $types = $this->typeRepository->all();
+
         return view('items.index', compact('items', 'types'));
     }
 
@@ -75,5 +83,21 @@ class ItemController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to delete item: ' . $e->getMessage());
         }
+    }
+
+    public function export()
+    {
+        return Excel::download(new ItemsExport, 'items.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv,xls'
+        ]);
+
+        Excel::import(new ItemsImport, $request->file('file'));
+
+        return redirect()->route('items.index')->with('success', 'Import berhasil!');
     }
 }
