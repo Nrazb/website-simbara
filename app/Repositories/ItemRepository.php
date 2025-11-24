@@ -6,7 +6,7 @@ use App\Models\Item;
 
 class ItemRepository implements ItemRepositoryInterface
 {
-    public function all($search = null, $perPage = 10)
+    public function all($search = null, $perPage = 5)
     {
         $query = Item::query();
 

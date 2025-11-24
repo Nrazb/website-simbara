@@ -6,25 +6,34 @@ use App\Repositories\MutationItemRequestRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreMutationItemRequest;
 use App\Http\Requests\UpdateMutationItemRequest;
+use App\Repositories\ItemRepositoryInterface;
+use App\Repositories\UserRepositoryInterface;
 
 class MutationItemRequestController extends Controller
 {
     protected $mutationItemRequestRepository;
+    protected $itemRepository;
+    protected $userRepository;
 
-    public function __construct(MutationItemRequestRepositoryInterface $mutationItemRequestRepository)
+    public function __construct(MutationItemRequestRepositoryInterface $mutationItemRequestRepository, ItemRepositoryInterface $itemRepository, UserRepositoryInterface $userRepository)
     {
         $this->mutationItemRequestRepository = $mutationItemRequestRepository;
+        $this->itemRepository = $itemRepository;
+        $this->userRepository = $userRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $mutationItemRequests = $this->mutationItemRequestRepository->all();
+        $perPage = $request->input('per_page', 5);
+        $mutationItemRequests = $this->mutationItemRequestRepository->all($perPage);
         return view('mutation_item_requests.index', compact('mutationItemRequests'));
     }
 
     public function create()
     {
-        return view('mutation_item_requests.create');
+        $items = $this->itemRepository->all();
+        $users = $this->userRepository->all();
+        return view('mutation_item_requests.create', compact('items', 'users'));
     }
 
     public function store(StoreMutationItemRequest $request)

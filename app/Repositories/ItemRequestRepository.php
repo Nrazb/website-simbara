@@ -6,9 +6,11 @@ use App\Models\ItemRequest;
 
 class ItemRequestRepository implements ItemRequestRepositoryInterface
 {
-    public function all()
+    public function all($perPage = 5)
     {
-        return ItemRequest::all();
+        return ItemRequest::with(['type', 'user'])
+        ->paginate($perPage)
+        ->appends(['per_page' => $perPage]);
     }
 
     public function find($id)

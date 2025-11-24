@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Repositories\MaintenanceItemRequestRepositoryInterface;
 use App\Http\Requests\StoreMaintenanceItemRequest;
 use App\Http\Requests\UpdateMaintenanceItemRequest;
+use Illuminate\Http\Request;
 
 class MaintenanceItemRequestController extends Controller
 {
@@ -15,9 +16,10 @@ class MaintenanceItemRequestController extends Controller
         $this->maintenanceItemRequestRepository = $maintenanceItemRequestRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $maintenanceItemRequests = $this->maintenanceItemRequestRepository->all();
+        $perPage = $request->input('per_page', 5);
+        $maintenanceItemRequests = $this->maintenanceItemRequestRepository->all($perPage);
         return view('maintenance_item_requests.index', compact('maintenanceItemRequests'));
     }
 

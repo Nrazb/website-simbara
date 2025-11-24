@@ -6,9 +6,10 @@ use App\Models\MaintenanceItemRequest;
 
 class MaintenanceItemRequestRepository implements MaintenanceItemRequestRepositoryInterface
 {
-    public function all()
+    public function all($perPage = 5)
     {
-        return MaintenanceItemRequest::all();
+        return MaintenanceItemRequest::paginate($perPage)
+        ->appends(['per_page' => $perPage]);
     }
 
     public function find($id)

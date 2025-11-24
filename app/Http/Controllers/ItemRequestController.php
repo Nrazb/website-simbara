@@ -6,6 +6,7 @@ use App\Repositories\ItemRequestRepositoryInterface;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Repositories\TypeRepositoryInterface;
+use Illuminate\Http\Request;
 
 class ItemRequestController extends Controller
 {
@@ -18,9 +19,10 @@ class ItemRequestController extends Controller
         $this->typeRepository = $typeRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $itemRequests = $this->itemRequestRepository->all()->load(['type', 'user']);
+        $perPage = $request->input('per_page', 5);
+        $itemRequests = $this->itemRequestRepository->all($perPage);
         $types = $this->typeRepository->all();
         return view('item_requests.index', compact('itemRequests', 'types'));
     }

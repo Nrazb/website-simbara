@@ -6,9 +6,11 @@ use App\Models\MutationItemRequest;
 
 class MutationItemRequestRepository implements MutationItemRequestRepositoryInterface
 {
-    public function all()
+    public function all($perPage = 5)
     {
-        return MutationItemRequest::all();
+        return MutationItemRequest::with(['fromUser', 'toUser'])
+        ->paginate($perPage)
+        ->appends(['per_page' => $perPage]);
     }
 
     public function find($id)

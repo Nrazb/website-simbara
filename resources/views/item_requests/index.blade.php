@@ -104,20 +104,47 @@
     <div class="flex flex-col sm:flex-row justify-between items-center mt-4 text-xs sm:text-sm text-gray-500 gap-3">
         <div class="flex items-center space-x-2">
             <span>Showing</span>
-            <select class="border border-blue-900 rounded-md text-gray-700 px-2 py-1 focus:ring-1 focus:ring-blue-500">
-                <option>5</option>
-                <option>10</option>
-                <option>15</option>
+            <select name="per_page" onchange="submitPerPage(this.value)"
+                class="border border-blue-900 rounded-md text-gray-700 px-2 py-1 focus:ring-1 focus:ring-blue-500">
+                <option value="5"  {{ request('per_page') == 5  ? 'selected' : '' }}>5</option>
+                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
             </select>
             <span>items</span>
         </div>
 
         <div class="flex space-x-1">
-            <button class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">&lt;</button>
-            <button class="px-2 sm:px-3 py-1 border border-blue-900 rounded-lg">1</button>
-            <button class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">2</button>
-            <button class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">3</button>
-            <button class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">&gt;</button>
+            @if ($itemRequests->onFirstPage())
+                <span class="px-2 sm:px-3 py-1 rounded-lg text-gray-400">&lt;</span>
+            @else
+                <a href="{{ $itemRequests->previousPageUrl() }}"
+                class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">
+                &lt;
+                </a>
+            @endif
+
+            @foreach ($itemRequests->getUrlRange(1, $itemRequests->lastPage()) as $page => $url)
+                @if ($page == $itemRequests->currentPage())
+                    <span class="px-2 sm:px-3 py-1 border border-blue-900 rounded-lg font-semibold">
+                        {{ $page }}
+                    </span>
+                @else
+                    <a href="{{ $url }}"
+                    class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">
+                        {{ $page }}
+                    </a>
+                @endif
+            @endforeach
+
+            @if ($itemRequests->hasMorePages())
+                <a href="{{ $itemRequests->nextPageUrl() }}"
+                class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">
+                &gt;
+                </a>
+            @else
+                <span class="px-2 sm:px-3 py-1 rounded-lg text-gray-400">&gt;</span>
+            @endif
+
         </div>
     </div>
 
@@ -141,40 +168,42 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteModal = document.getElementById('delete-modal');
-    const deleteModalContent = deleteModal.querySelector('div.bg-white');
-    const closeDeleteBtn = deleteModal.querySelector('#closeDeleteModal');
-    const deleteForm = deleteModal.querySelector('#deleteForm');
+    function submitPerPage(value) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('per_page', value);
+        window.location.href = url.toString();
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteModal = document.getElementById('delete-modal');
+        const deleteModalContent = deleteModal.querySelector('div.bg-white');
+        const closeDeleteBtn = deleteModal.querySelector('#closeDeleteModal');
+        const deleteForm = deleteModal.querySelector('#deleteForm');
 
-    document.querySelectorAll('button[data-modal-target="delete-modal"]').forEach(button => {
-        button.addEventListener('click', () => {
-            const row = button.closest('tr') || button.closest('div[data-id]');
-            const id = row.dataset.id;
+        document.querySelectorAll('button[data-modal-target="delete-modal"]').forEach(button => {
+            button.addEventListener('click', () => {
+                const row = button.closest('tr') || button.closest('div[data-id]');
+                const id = row.dataset.id;
 
-            // Set action form delete dinamis
-            deleteForm.action = `/item-requests/${id}`;
+                // Set action form delete dinamis
+                deleteForm.action = `/item-requests/${id}`;
 
-            // Tampilkan modal
-            deleteModal.classList.remove('hidden');
-            setTimeout(() => {
-                deleteModalContent.classList.remove('scale-95', 'opacity-0');
-                deleteModalContent.classList.add('scale-100', 'opacity-100');
-            }, 10);
+                // Tampilkan modal
+                deleteModal.classList.remove('hidden');
+                setTimeout(() => {
+                    deleteModalContent.classList.remove('scale-95', 'opacity-0');
+                    deleteModalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            });
         });
+
+        const closeDeleteModal = () => {
+            deleteModalContent.classList.remove('scale-100', 'opacity-100');
+            deleteModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => deleteModal.classList.add('hidden'), 150);
+        };
+
+        closeDeleteBtn.addEventListener('click', closeDeleteModal);
+        deleteModal.addEventListener('click', e => { if(e.target === deleteModal) closeDeleteModal(); });
     });
-
-    const closeDeleteModal = () => {
-        deleteModalContent.classList.remove('scale-100', 'opacity-100');
-        deleteModalContent.classList.add('scale-95', 'opacity-0');
-        setTimeout(() => deleteModal.classList.add('hidden'), 150);
-    };
-
-    closeDeleteBtn.addEventListener('click', closeDeleteModal);
-    deleteModal.addEventListener('click', e => { if(e.target === deleteModal) closeDeleteModal(); });
-});
 </script>
-
-
-
 @endsection

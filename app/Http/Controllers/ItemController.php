@@ -26,7 +26,7 @@ class ItemController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $perPage = $request->input('per_page', 5); // default 10
+        $perPage = $request->input('per_page', 5);
 
         $items = $this->itemRepository->all($search, $perPage);
         $types = $this->typeRepository->all();
