@@ -10,6 +10,7 @@ use App\Http\Controllers\MaintenanceItemRequestController;
 use App\Http\Controllers\RemoveItemRequestController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportsController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -31,4 +32,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('mutation-item-requests', MutationItemRequestController::class);
     Route::resource('maintenance-item-requests', MaintenanceItemRequestController::class);
     Route::resource('remove-item-requests', RemoveItemRequestController::class);
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+    Route::post('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
 });
