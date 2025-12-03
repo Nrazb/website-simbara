@@ -8,7 +8,7 @@
 <div class="flex items-center justify-between mb-4">
     <div>
         <h2 class="font-semibold text-blue-900 text-lg">Jenis Barang</h2>
-        <p class="font-light text-gray-400 text-sm">Data jenis barang milik negara</p>
+        <p class="font-light text-gray-400 text-sm">Daftar jenis barang milik negara</p>
     </div>
 
     @include('components.header')

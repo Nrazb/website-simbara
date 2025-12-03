@@ -8,9 +8,13 @@ use Illuminate\Support\Facades\Hash;
 
 class UserRepository implements UserRepositoryInterface
 {
-    public function all()
+    public function all($perPage = 5, $filters=[])
     {
-        return User::all();
+        $query = User::query()->withTrashed();
+        return $query->paginate($perPage)->appends([
+            'per_page' => $perPage,
+            $filters
+        ]);
     }
 
     public function find($id)

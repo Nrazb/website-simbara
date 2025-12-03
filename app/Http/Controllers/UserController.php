@@ -18,9 +18,10 @@ class UserController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = $this->userRepository->all();
+        $perPage = $request->input('per_page',5);
+        $users = $this->userRepository->all($perPage);
         return view('users.index', compact('users'));
     }
 
@@ -35,9 +36,9 @@ class UserController extends Controller
         try {
             $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
             $this->userRepository->create($validated);
-            return redirect()->route('users.index')->with('success', 'User created successfully.');
+            return redirect()->route('users.index')->with('success', 'Berhasil menambahkan pengguna baru.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create user: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal membuat pengguna: ' . $e->getMessage());
         }
     }
 
@@ -63,9 +64,9 @@ class UserController extends Controller
                 unset($validated['password']);
             }
             $this->userRepository->update($id, $validated);
-            return redirect()->route('users.index')->with('success', 'User updated successfully.');
+            return redirect()->route('users.index')->with('success', 'Data berhasil diperbarui.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to update user: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui: ' . $e->getMessage());
         }
     }
 
@@ -73,9 +74,9 @@ class UserController extends Controller
     {
         try {
             $this->userRepository->delete($id);
-            return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+            return redirect()->route('users.index')->with('success', 'Berhasil menghapus pengguna.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus pengguna: ' . $e->getMessage());
         }
     }
 }

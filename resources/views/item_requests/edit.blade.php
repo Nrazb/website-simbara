@@ -6,7 +6,6 @@
       Edit Usulan
     </h2>
 
-    <!-- Form tunggal -->
     <form id="editForm" method="POST" class="space-y-6">
       @csrf
       @method('PUT')
@@ -64,45 +63,45 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const modal = document.getElementById('edit-usulan');
-  const modalContent = modal.querySelector('div.bg-white');
-  const closeBtn = modal.querySelector('#closeModal');
-  const editForm = modal.querySelector('#editForm');
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('edit-usulan');
+        const modalContent = modal.querySelector('div.bg-white');
+        const closeBtn = modal.querySelector('#closeModal');
+        const editForm = modal.querySelector('#editForm');
 
-  document.querySelectorAll('button[data-modal-target="edit-usulan"]').forEach(button => {
-    button.addEventListener('click', () => {
-      const row = button.closest('tr');
-      const id = row.dataset.id;
-      const name = row.querySelector('td:nth-child(1)').innerText.trim();
-      const detail = row.querySelector('td:nth-child(2)').innerText.trim();
-      const type = row.querySelector('td:nth-child(3)').dataset.typeId;
-      const qty = row.querySelector('td:nth-child(4)').innerText.trim();
-      const reason = row.querySelector('td:nth-child(5)').innerText.trim();
+    document.querySelectorAll('button[data-modal-target="edit-usulan"]').forEach(button => {
+        button.addEventListener('click', () => {
+        const row = button.closest('tr');
+        const id = row.dataset.id;
+        const name = row.querySelector('td:nth-child(1)').innerText.trim();
+        const detail = row.querySelector('td:nth-child(2)').innerText.trim();
+        const type = row.querySelector('td:nth-child(3)').dataset.typeId;
+        const qty = row.querySelector('td:nth-child(4)').innerText.trim();
+        const reason = row.querySelector('td:nth-child(5)').innerText.trim();
 
-      editForm.action = `/item-requests/${id}`;
-      editForm.querySelector('#edit_id').value = id;
-      editForm.querySelector('#edit_name').value = name;
-      editForm.querySelector('#edit_type').value = type;
-      editForm.querySelector('#edit_detail').value = detail;
-      editForm.querySelector('#edit_qty').value = qty;
-      editForm.querySelector('#edit_reason').value = reason;
+        editForm.action = `/item-requests/${id}`;
+        editForm.querySelector('#edit_id').value = id;
+        editForm.querySelector('#edit_name').value = name;
+        editForm.querySelector('#edit_type').value = type;
+        editForm.querySelector('#edit_detail').value = detail;
+        editForm.querySelector('#edit_qty').value = qty;
+        editForm.querySelector('#edit_reason').value = reason;
 
-      modal.classList.remove('hidden');
-      setTimeout(() => {
-        modalContent.classList.remove('scale-95', 'opacity-0');
-        modalContent.classList.add('scale-100', 'opacity-100');
-      }, 10);
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+        });
     });
-  });
 
-  const closeModal = () => {
-    modalContent.classList.remove('scale-100', 'opacity-100');
-    modalContent.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => modal.classList.add('hidden'), 150);
-  };
+    const closeModal = () => {
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 150);
+    };
 
-  closeBtn.addEventListener('click', closeModal);
-  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-});
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    });
 </script>
