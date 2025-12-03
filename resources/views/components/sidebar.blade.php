@@ -20,7 +20,7 @@
                 <a href="/dashboard" class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg
                 {{ Request::is('dashboard') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
                     <i class="fa-solid fa-grip"></i>
-                    <span class="text-xs md:text-base">Dashboard</span>
+                    <span class="text-xs md:text-base">Dasbor</span>
                 </a>
 
                 <a href="{{ route('item-requests.index') }}" class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg
@@ -32,7 +32,7 @@
                 <a href="{{ route('items.create') }}" class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
                 {{ Request::is('items/create*') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
                     <i class="fas fa-plus-square text-lg"></i>
-                    <span class="text-xs md:text-base">Input barang</span>
+                    <span class="text-xs md:text-base">Masukan barang</span>
                 </a>
 
                 <a href="{{ route('items.index') }}"
@@ -42,26 +42,60 @@
                     <span class="text-xs md:text-base">Data Barang</span>
                 </a>
 
-                <a href="{{ route('mutation-item-requests.index')}}"
-                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
-                {{ Request::is('mutation-item-requests*') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
-                    <i class="fas fa-exchange-alt text-lg"></i>
-                    <span class="text-xs md:text-base">Mutasi</span>
-                </a>
+                <div class="group">
+                    <button class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
+                        hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400">
+                        <i class="fas fa-boxes text-lg"></i>
+                        <span class="text-xs md:text-base">Perlakuan Barang</span>
+                    </button>
 
-                <a href="{{ route('maintenance-item-requests.index')}}"
-                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
-                {{ Request::is('maintenance-item-requests') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
-                    <i class="fas fa-tools text-lg"></i>
-                    <span class="text-xs md:text-base">Pemeliharaan</span>
-                </a>
+                    <div class="hidden group-hover:flex flex-col mt-1">
+                        <a href="{{ route('mutation-item-requests.index')}}"
+                            class="w-full flex items-center gap-3 px-6 py-2 rounded-lg transition text-xs md:text-base
+                                {{ Request::is('mutation-item-requests*')
+                                    ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400'
+                                    : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
+                            <i class="fas fa-exchange-alt"></i>
+                            Mutasi
+                        </a>
 
-                <a href="{{ route('remove-item-requests.index')}}"
-                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
-                {{ Request::is('remove-item-requests') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
-                    <i class="fas fa-trash text-lg"></i>
-                    <span class="text-xs md:text-base">Penghapusan</span>
+                        <a href="{{ route('maintenance-item-requests.index')}}"
+                            class="w-full flex items-center gap-3 px-6 py-2 rounded-lg transition text-xs md:text-base
+                                {{ Request::is('maintenance-item-requests')
+                                    ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400'
+                                    : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
+                            <i class="fas fa-tools"></i>
+                            Pemeliharaan
+                        </a>
+
+                        <a href="{{ route('remove-item-requests.index')}}"
+                            class="w-full flex items-center gap-3 px-6 py-2 rounded-lg transition text-xs md:text-base
+                                {{ Request::is('remove-item-requests')
+                                    ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400'
+                                    : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
+                            <i class="fas fa-trash"></i>
+                            Penghapusan
+                        </a>
+                    </div>
+                </div>
+
+                @if(Auth::user()->role === 'ADMIN')
+                <a href="{{route('types.index')}}"
+                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
+                        hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
+                    <i class="fa-solid fa-pen-to-square text-lg"></i>
+                    <span class="text-xs md:text-base">Jenis Barang</span>
                 </a>
+                @endif
+
+                @if(Auth::user()->role === 'ADMIN')
+                <a href="{{route('users.index')}}"
+                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
+                        hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
+                    <i class="fa-solid fa-user text-lg"></i>
+                    <span class="text-xs md:text-base">Kelola Pengguna</span>
+                </a>
+                @endif
 
                 @if(Auth::user()->role === 'ADMIN')
                 <a href="{{route('reports.index')}}"

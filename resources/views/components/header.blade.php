@@ -15,7 +15,7 @@
                         class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-blue-100">
                         @csrf
                         <i class="fa-solid fa-arrow-right-from-bracket text-red-600"></i>
-                        <button type="submit" class="w-full text-left text-red-600">Logout</button>
+                        <button type="submit" class="w-full text-left text-red-600">Keluar</button>
                     </form>
                 </div>
             </div>

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\RemoveItemRequestRepositoryInterface;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreRemoveItemRequest;
 use App\Http\Requests\UpdateRemoveItemRequest;
+use App\Models\User;
 
 class RemoveItemRequestController extends Controller
 {
@@ -15,10 +17,20 @@ class RemoveItemRequestController extends Controller
         $this->removeItemRequestRepository = $removeItemRequestRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $removeItemRequests = $this->removeItemRequestRepository->all();
-        return view('remove_item_requests.index', compact('removeItemRequests'));
+        $perPage = $request->input('per_page', 5);
+        $users = User::whereIn('id', function($query) {
+            $query->select('user_id')->from('remove_item_requests');
+            })
+            ->orderBy('name')
+            ->get();
+        $filters = [
+            'user_id' => $request->input('user_id'),
+        ];
+
+        $removeItemRequests = $this->removeItemRequestRepository->all($perPage, $filters);
+        return view('remove_item_requests.index', compact('removeItemRequests', 'users'));
     }
 
     public function create()

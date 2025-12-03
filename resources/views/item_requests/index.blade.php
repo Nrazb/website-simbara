@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Item Request | SIMBARA')
+@section('title', 'Usulan Barang Baru | SIMBARA')
 
 @section('content')
 @include('item_requests.create')
@@ -13,20 +13,69 @@
 
     @include('components.header')
 </div>
-<div class="p-4 sm:p-6 bg-white rounded-2xl shadow-sm">
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div class="relative flex-1 min-w-[200px] max-w-sm">
-            <input type="text" placeholder="Search Item" value="{{ request('search') }}" oninput="this.form.submit()"
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
+<div class="p-3 sm:p-6 bg-white rounded-2xl shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+        <div class="relative w-full sm:max-w-xs">
+            <input type="text" placeholder="Cari Item"
+                value="{{ request('search') }}"
+                oninput="this.form.submit()"
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
         </div>
 
-        <div class="flex items-center gap-2">
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-1" data-modal-target="create-usulan">
-                <i class="fa-solid fa-plus"></i>
-                <span>Tambah Usulan</span>
-            </button>
-        </div>
+        <button
+            class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-blue-700 text-white
+                   rounded-lg text-sm font-medium shadow-sm transition"
+            data-modal-target="create-usulan">
+            <i class="fa-solid fa-plus"></i>
+            <span>Tambah Usulan</span>
+        </button>
+    </div>
+
+    <div class="mb-4 rounded-xl shadow-sm">
+        <form method="GET" class="flex flex-wrap items-center gap-4">
+            <div class="relative min-w-[220px]">
+                <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2
+                          text-gray-400 text-sm"></i>
+                <select name="user_id" onchange="this.form.submit()"
+                    class="w-full border rounded-lg pl-9 pr-8 py-2 bg-white shadow-sm text-sm
+                           focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition">
+                    <option value="">Semua User</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}"
+                            {{ request('user_id') == $user->id ? 'selected' : '' }}>
+                            {{ $user->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="relative min-w-[150px]">
+                <i class="fa-solid fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <select name="year" onchange="this.form.submit()"
+                    class="border rounded-lg pl-9 pr-8 py-2 bg-white shadow-sm
+                        focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition w-full text-sm">
+                    <option value="">Semua Tahun</option>
+
+                    @foreach($years as $y)
+                        <option value="{{ $y->year }}" {{ request('year') == $y->year ? 'selected' : '' }}>
+                            {{ $y->year }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+
+            @if(request()->anyFilled(['user_id', 'year']))
+                <a href="{{ route('item-requests.index') }}"
+                    class="flex items-center gap-2 px-4 py-2 bg-white text-gray-600 rounded-lg
+                           text-sm font-medium border border-gray-300 hover:bg-gray-100 shadow-sm transition">
+                    <i class="fa-solid fa-rotate-left text-gray-500"></i>
+                    Reset
+                </a>
+            @endif
+        </form>
     </div>
 
     <!-- Tampilan tabel di dekstop -->
@@ -37,33 +86,38 @@
                     <th class="px-4 py-3">Nama Barang</th>
                     <th class="px-4 py-3">Spesifikasi</th>
                     <th class="px-4 py-3">Jenis</th>
-                    <th class="px-4 py-3">Quantity</th>
+                    <th class="px-4 py-3">Kuantitas</th>
                     <th class="px-4 py-3">Alasan</th>
                     <th class="px-4 py-3">Unit</th>
-                    <th class="px-4 py-3 text-center">Action</th>
+                    <th class="px-4 py-3">Tanggal Usulan</th>
+                    <th class="px-4 py-3">Tanggal Usulan Dihapus</th>
+                    <th class="px-4 py-3 text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
                 @foreach ($itemRequests as $data )
-                <tr class="hover:bg-gray-50 transition" data-id="{{ $data->id }}">
-                    <td class="px-4 py-3 font-medium text-gray-800">{{ $data->name}}</td>
+                <tr class="hover:bg-gray-50 transition {{ $data->trashed() ?  'text-red-600' : '' }}" data-id="{{ $data->id }}">
+                    <td class="px-4 py-3 font-medium">{{ $data->name}}</td>
                     <td class="px-4 py-3">{{ $data->detail}}</td>
                     <td class="px-4 py-3" data-type-id="{{ $data->type->id }}">{{ $data->type->name}}</td>
                     <td class="px-4 py-3">{{ $data->qty}}</td>
                     <td class="px-4 py-3">{{ $data->reason}}</td>
                     <td class="px-4 py-3">{{ $data->user->name}}</td>
+                    <td class="px-4 py-3">{{$data->created_at}}</td>
+                    <td class="px-4 py-3">{{$data?->deleted_at ?? '-'}}</td>
                     <td class="px-4 py-3 text-center">
-                        <div class="flex justify-center space-x-2">
-                            <button class="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <button class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg" data-modal-target="edit-usulan">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg" data-modal-target="delete-modal">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
+                        @if (!$data->deleted_at)
+                            <div class="flex justify-center space-x-2">
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg" data-modal-target="edit-usulan">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg" data-modal-target="delete-modal">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        @else
+                            <span class="text-gray-400 italic">Data ini sudah dihapus</span>
+                        @endif
                     </td>
                 </tr>
                 @endforeach
@@ -74,28 +128,32 @@
     <!-- Tampilan kartu untuk bentuk mobile-->
     <div class="block md:hidden space-y-3">
         @foreach ($itemRequests as $data )
-        <div class="border border-gray-200 rounded-xl p-3 shadow-sm" data-id="{{ $data->id }}">
+        <div class="border border-gray-200 rounded-xl p-3 shadow-sm {{ $data->trashed() ?  'text-red-600' : '' }}" data-id="{{ $data->id }}" data-id="{{ $data->id }}">
             <div class="flex justify-between items-center">
-                <h3 class="font-semibold text-gray-800 text-lg">{{ $data->name}}</h3>
-                <input type="checkbox" class="h-4 w-4">
+                <h3 class="font-semibold">{{ $data->name}}</h3>
             </div>
-            <div class="mt-2 text-sm text-gray-600 space-y-1">
+            <div class="mt-2 text-sm space-y-1">
                 <p><span class="font-medium">Spesifikasi:</span> {{ $data->detail}}</p>
                 <p><span class="font-medium">Jenis:</span> {{ $data->type->name}}</p>
-                <p><span class="font-medium">Quantity:</span> {{ $data->qty}}</p>
+                <p><span class="font-medium">Kuantitas:</span> {{ $data->qty}}</p>
                 <p><span class="font-medium">Alasan:</span> {{ $data->reason}}</p>
                 <p><span class="font-medium">Unit:</span> {{ $data->user->name}}</p>
+                <p><span class="font-medium">Tanggal Usulan:</span> {{ $data->created_at}}</p>
+                <p><span class="font-medium">Tanggal Usulan Dihapus:</span> {{ $data->deleted_at}}</p>
             </div>
             <div class="flex justify-end space-x-2 mt-3">
-                <button class="bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg text-xs">
-                    <i class="fa-regular fa-eye"></i>
-                </button>
-                <button class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg text-xs" data-modal-target="edit-usulan">
-                    <i class="fa-solid fa-pencil"></i>
-                </button>
-                <button class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg text-xs" data-modal-target="delete-modal" >
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                @if (!$data->deleted_at)
+                    <div class="flex justify-center space-x-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg" data-modal-target="edit-usulan">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg" data-modal-target="delete-modal">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                @else
+                    <span class="text-gray-400 italic">Data ini sudah dihapus</span>
+                @endif
             </div>
         </div>
         @endforeach
@@ -103,14 +161,14 @@
 
     <div class="flex flex-col sm:flex-row justify-between items-center mt-4 text-xs sm:text-sm text-gray-500 gap-3">
         <div class="flex items-center space-x-2">
-            <span>Showing</span>
+            <span>Menampilkan</span>
             <select name="per_page" onchange="submitPerPage(this.value)"
                 class="border border-blue-900 rounded-md text-gray-700 px-2 py-1 focus:ring-1 focus:ring-blue-500">
                 <option value="5"  {{ request('per_page') == 5  ? 'selected' : '' }}>5</option>
                 <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
                 <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
             </select>
-            <span>items</span>
+            <span>item</span>
         </div>
 
         <div class="flex space-x-1">
@@ -144,7 +202,6 @@
             @else
                 <span class="px-2 sm:px-3 py-1 rounded-lg text-gray-400">&gt;</span>
             @endif
-
         </div>
     </div>
 
@@ -167,6 +224,20 @@
     </div>
 </div>
 
+@if(session('success'))
+    <div id="toast-success"
+        class="fixed bottom-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 opacity-0 translate-y-4 transition-all duration-300">
+        <span>{{ session('success') }}</span>
+    </div>
+@endif
+
+@if(session('error'))
+    <div id="toast-error"
+        class="fixed bottom-4 right-4 z-50 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 opacity-0 translate-y-4 transition-all duration-300">
+        <span>{{ session('error') }}</span>
+    </div>
+@endif
+
 <script>
     function submitPerPage(value) {
         const url = new URL(window.location.href);
@@ -183,11 +254,7 @@
             button.addEventListener('click', () => {
                 const row = button.closest('tr') || button.closest('div[data-id]');
                 const id = row.dataset.id;
-
-                // Set action form delete dinamis
                 deleteForm.action = `/item-requests/${id}`;
-
-                // Tampilkan modal
                 deleteModal.classList.remove('hidden');
                 setTimeout(() => {
                     deleteModalContent.classList.remove('scale-95', 'opacity-0');
@@ -205,5 +272,25 @@
         closeDeleteBtn.addEventListener('click', closeDeleteModal);
         deleteModal.addEventListener('click', e => { if(e.target === deleteModal) closeDeleteModal(); });
     });
+
+    function showToast(id) {
+        const toast = document.getElementById(id);
+        if (!toast) return;
+
+        setTimeout(() => {
+            toast.classList.remove("opacity-0", "translate-y-4");
+            toast.classList.add("opacity-100", "translate-y-0");
+        }, 100);
+
+        setTimeout(() => {
+            toast.classList.remove("opacity-100", "translate-y-0");
+            toast.classList.add("opacity-0", "translate-y-4");
+
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    showToast("toast-success");
+    showToast("toast-error");
 </script>
 @endsection

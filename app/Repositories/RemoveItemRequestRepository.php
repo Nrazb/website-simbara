@@ -6,9 +6,17 @@ use App\Models\RemoveItemRequest;
 
 class RemoveItemRequestRepository implements RemoveItemRequestRepositoryInterface
 {
-    public function all()
+    public function all($perPage = 5, $filters = [])
     {
-        return RemoveItemRequest::all();
+        $query = RemoveItemRequest::query()->with('user');
+
+        if (!empty($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        return $query->paginate($perPage)
+                    ->appends($filters)
+                    ->appends(['per_page' => $perPage]);
     }
 
     public function find($id)

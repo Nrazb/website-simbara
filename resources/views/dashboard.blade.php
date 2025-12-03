@@ -5,7 +5,7 @@
 @section('content')
 <div class="flex items-center justify-between mb-4">
     <div>
-        <h2 class="font-semibold text-blue-900 text-xl">Hello {{ auth()->user()->name }} 👋</h2>
+        <h2 class="font-semibold text-blue-900 text-xl">Halo {{ auth()->user()->name }} 👋</h2>
         <p class="font-light text-gray-400 text-sm">Selamat datang di dashboard</p>
     </div>
 
@@ -15,7 +15,7 @@
     <div class="bg-white shadow-lg rounded-lg p-6 inline-block justify-between">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-bold text-black">List Usulan Barang Baru</h2>
-            <a href="{{ route('item-requests.index') }}" class="text-blue-400 hover:underline text-sm font-medium">View All</a>
+            <a href="{{ route('item-requests.index') }}" class="text-blue-400 hover:underline text-sm font-medium">Lihat Semua</a>
         </div>
         <table class="table-auto text-center border border-gray-200">
             <thead class="bg-gray-100">
@@ -28,15 +28,21 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($itemRequest as $itemRequest)
-                <tr class="hover:bg-amber-50">
-                    <td class="p-2 font-light border-b">{{ $itemRequest->name }}</td>
-                    <td class="p-2 font-light border-b">{{ $itemRequest->detail }}</td>
-                    <td class="p-2 font-light border-b">{{ $itemRequest->type->name }}</td>
-                    <td class="p-2 font-light border-b">{{ $itemRequest->qty }}</td>
-                    <td class="p-2 font-light border-b">{{ $itemRequest->user->name }}</td>
-                </tr>
-                @endforeach
+                @forelse ($itemRequest as $itemRequest)
+                    <tr class="hover:bg-amber-50">
+                        <td class="p-2 font-light border-b">{{ $itemRequest->name }}</td>
+                        <td class="p-2 font-light border-b">{{ $itemRequest->detail }}</td>
+                        <td class="p-2 font-light border-b">{{ $itemRequest->type->name }}</td>
+                        <td class="p-2 font-light border-b">{{ $itemRequest->qty }}</td>
+                        <td class="p-2 font-light border-b">{{ $itemRequest->user->name }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="p-3 text-gray-500 font-light italic">
+                            Tidak ada data saat ini
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -44,7 +50,7 @@
     <div class="bg-white shadow-lg rounded-lg p-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-bold text-black">List Barang</h2>
-            <a href="{{ route('items.index') }}" class="text-blue-400 hover:underline text-sm font-medium">View All</a>
+            <a href="{{ route('items.index') }}" class="text-blue-400 hover:underline text-sm font-medium">Lihat Semua</a>
         </div>
         <table class="w-full text-center border border-gray-200">
             <thead class="bg-gray-100">
@@ -55,13 +61,19 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($item as $item)
+                @forelse ($item as $item)
                 <tr class="hover:bg-amber-50">
                     <td class="p-2 font-light border-b">{{ $item->code }}</td>
                     <td class="p-2 font-light border-b">{{ $item->order_number }}</td>
                     <td class="p-2 font-light border-b">{{ $item->name }}</td>
                 </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="5" class="p-3 text-gray-500 font-light italic">
+                            Tidak ada data saat ini
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

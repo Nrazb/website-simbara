@@ -7,6 +7,7 @@ use App\Repositories\ItemRepositoryInterface;
 use App\Http\Requests\StoreItemRequestForm;
 use App\Http\Requests\UpdateItemRequestForm;
 use App\Imports\ItemsImport;
+use App\Models\Item;
 use App\Models\User;
 use App\Repositories\TypeRepositoryInterface;
 use Illuminate\Http\Request;
@@ -25,13 +26,25 @@ class ItemController extends Controller
 
     public function index(Request $request)
     {
+        $types = $this->typeRepository->all();
         $search = $request->input('search');
         $perPage = $request->input('per_page', 5);
 
-        $items = $this->itemRepository->all($search, $perPage);
-        $types = $this->typeRepository->all();
-
-        return view('items.index', compact('items', 'types'));
+        $users = User::whereIn('id', function($query) {
+            $query->select('user_id')->from('items');
+            })
+            ->orderBy('name')
+            ->get();
+        $years = Item::selectRaw('acquisition_year as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->get();
+        $filters = [
+            'user_id' => $request->input('user_id'),
+            'year'    => $request->input('year'),
+        ];
+        $items = $this->itemRepository->all($search, $perPage, $filters);
+        return view('items.index', compact('items', 'types', 'users', 'years'));
     }
 
     public function create()
@@ -46,9 +59,9 @@ class ItemController extends Controller
         $validated = $request->validated();
         try {
             $this->itemRepository->create($validated);
-            return redirect()->route('items.index')->with('success', 'Item created successfully.');
+            return redirect()->route('items.index')->with('success', 'Berhasil menambahkan barang.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create item: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan barang: ' . $e->getMessage());
         }
     }
 
@@ -69,9 +82,9 @@ class ItemController extends Controller
         $validated = $request->validated();
         try {
             $this->itemRepository->update($id, $validated);
-            return redirect()->route('items.index')->with('success', 'Item updated successfully.');
+            return redirect()->route('items.index')->with('success', 'Berhasil memperbarui barang.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to update item: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui barang: ' . $e->getMessage());
         }
     }
 
@@ -79,15 +92,10 @@ class ItemController extends Controller
     {
         try {
             $this->itemRepository->delete($id);
-            return redirect()->route('items.index')->with('success', 'Item deleted successfully.');
+            return redirect()->route('items.index')->with('success', 'Berhasil menghapus barang.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete item: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
         }
-    }
-
-    public function export()
-    {
-        return Excel::download(new ItemsExport, 'items.xlsx');
     }
 
     public function import(Request $request)

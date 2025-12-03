@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Repositories\ItemRequestRepositoryInterface;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
+use App\Models\ItemRequest;
+use App\Models\User;
 use App\Repositories\TypeRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -22,9 +24,22 @@ class ItemRequestController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 5);
-        $itemRequests = $this->itemRequestRepository->all($perPage);
         $types = $this->typeRepository->all();
-        return view('item_requests.index', compact('itemRequests', 'types'));
+        $users = User::whereIn('id', function($query) {
+            $query->select('user_id')->from('item_requests');
+            })
+            ->orderBy('name')
+            ->get();
+        $years = ItemRequest::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->get();
+        $filters = [
+            'user_id' => $request->input('user_id'),
+            'year'    => $request->input('year'),
+        ];
+        $itemRequests = $this->itemRequestRepository->all($perPage, $filters);
+        return view('item_requests.index', compact('itemRequests', 'types', 'users', 'years'));
     }
 
     public function create()

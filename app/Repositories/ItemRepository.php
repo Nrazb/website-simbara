@@ -6,18 +6,23 @@ use App\Models\Item;
 
 class ItemRepository implements ItemRepositoryInterface
 {
-    public function all($search = null, $perPage = 5)
+    public function all($search = null, $perPage = 5, $filters=[])
     {
-        $query = Item::query();
+        $query = Item::query()->with(['user'])->withTrashed();
 
-        if ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
-        }
+        $query
+            ->when(!empty($filters['user_id']), function ($q) use ($filters) {
+                $q->where('user_id', $filters['user_id']);
+            })
+            ->when(!empty($filters['year']), function ($q) use ($filters) {
+                $q->whereYear('created_at', $filters['year']);
+            });
 
         return $query->paginate($perPage)
                      ->appends([
                          'search' => $search,
-                         'per_page' => $perPage
+                         'per_page' => $perPage,
+                         $filters
                      ]);
     }
 

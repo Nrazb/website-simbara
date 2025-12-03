@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Login | SIMBARA')
+@section('title', 'Masuk | SIMBARA')
 
 @section('content')
     <div class="flex min-h-screen">
@@ -23,7 +23,7 @@
                 <div class="flex flex-col justify-end h-1/2 px-6 py-8">
                     <h1 class="text-4xl font-bold mb-2">Selamat Datang!</h1>
                     <p class="text-lg text-white leading-relaxed">
-                        Masukan Email dan Password <br>
+                        Masukan Kode Unit dan Kata Sandi <br>
                         Untuk Melanjutkan
                     </p>
                 </div>
@@ -32,10 +32,9 @@
         <!-- Ini sebelah kanan ya - Form login -->
         <div class="w-1/2 flex items-center justify-center">
             <div class="w-full max-w-md px-8">
-                <h2 class="text-2xl font-semibold mb-1">Welcome 👋</h2>
-                <p class="text-gray-500 mb-6">Please login here</p>
+                <h2 class="text-2xl font-semibold mb-1">Selamat Datang 👋</h2>
+                <p class="text-gray-500 mb-6">Silahkan Masuk Ke Akun</p>
 
-                {{-- General error message --}}
                 @if ($errors->has('code'))
                     <div class="mb-4 text-red-600 text-sm">
                         {{ $errors->first('code') }}
@@ -50,7 +49,7 @@
                 <form action="#" method="POST">
                     @csrf
                     <div class="mb-4">
-                        <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Code</label>
+                        <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Kode Unit</label>
                         <input type="text" name="code" id="code" required autofocus
                             class="w-full border border-blue-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 @error('code') border-red-500 @enderror"
                             value="{{ old('code') }}" placeholder="12345678">
@@ -59,7 +58,7 @@
                         @enderror
                     </div>
                     <div class="mb-4 relative">
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi</label>
                         <input type="password" name="password" id="password" required
                             class="w-full border border-blue-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 @error('password') border-red-500 @enderror"
                             placeholder="••••••••">
@@ -70,12 +69,12 @@
                     <div class="flex items-center justify-between mb-6">
                         <label class="inline-flex items-center">
                             <input type="checkbox" name="remember" class="form-checkbox text-blue-900 rounded">
-                            <span class="ml-2 text-sm text-gray-700">Remember Me</span>
+                            <span class="ml-2 text-sm text-gray-700">Ingat Saya</span>
                         </label>
                     </div>
                     <button type="submit"
                         class="w-full bg-blue-900 hover:bg-amber-400 text-white  py-2 rounded-lg transition duration-200">
-                        Login
+                        Masuk
                     </button>
                 </form>
             </div>

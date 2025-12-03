@@ -14,7 +14,7 @@
 <div class="p-4 sm:p-6 bg-white rounded-2xl shadow-sm">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div class="flex items-center gap-2">
-            <button onclick="window.location.href='{{ route('mutation-item-requests.create') }}'" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-1">
+            <button onclick="window.location.href='{{ route('mutation-item-requests.create') }}'" class="bg-blue-900 hover:bg-amber-400 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-1">
                 <i class="fas fa-exchange-alt"></i>
                 <span>Mutasi Barang</span>
             </button>
@@ -120,11 +120,44 @@
         </div>
     </div>
 </div>
+@if(session('success'))
+    <div id="toast-success"
+        class="fixed bottom-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 opacity-0 translate-y-4 transition-all duration-300">
+        <span>{{ session('success') }}</span>
+    </div>
+@endif
+
+@if(session('error'))
+    <div id="toast-error"
+        class="fixed bottom-4 right-4 z-50 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 opacity-0 translate-y-4 transition-all duration-300">
+        <span>{{ session('error') }}</span>
+    </div>
+@endif
 <script>
     function submitPerPage(value) {
         const url = new URL(window.location.href);
         url.searchParams.set('per_page', value);
         window.location.href = url.toString();
     }
+
+    function showToast(id) {
+        const toast = document.getElementById(id);
+        if (!toast) return;
+
+        setTimeout(() => {
+            toast.classList.remove("opacity-0", "translate-y-4");
+            toast.classList.add("opacity-100", "translate-y-0");
+        }, 100);
+
+        setTimeout(() => {
+            toast.classList.remove("opacity-100", "translate-y-0");
+            toast.classList.add("opacity-0", "translate-y-4");
+
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    showToast("toast-success");
+    showToast("toast-error");
 </script>
 @endsection

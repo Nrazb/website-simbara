@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Input Items | SIMBARA')
+@section('title', 'Masukan Barang | SIMBARA')
 
 @section('content')
 <div class="flex items-center justify-between mb-4">
     <div>
-        <h2 class="font-semibold text-blue-900 text-lg">Input Barang</h2>
+        <h2 class="font-semibold text-blue-900 text-lg">Masukan Barang</h2>
         <p class="font-light text-gray-400 text-sm">Masukan detail barang yang diterima</p>
     </div>
 
