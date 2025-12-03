@@ -6,9 +6,13 @@ use App\Models\Type;
 
 class TypeRepository implements TypeRepositoryInterface
 {
-    public function all()
+    public function all($perPage = 5, $filters=[])
     {
-        return Type::all();
+        $query = Type::query()->withTrashed();
+        return $query->paginate($perPage)->appends([
+            'per_page' => $perPage,
+            $filters
+        ]);
     }
 
     public function find($id)

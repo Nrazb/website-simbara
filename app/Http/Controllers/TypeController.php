@@ -17,10 +17,11 @@ class TypeController extends Controller
         $this->typeRepository = $typeRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $types = $this->typeRepository->all();
-        return view('item_requests.create', compact('types'));
+        $perPage = $request->input('per_page',5);
+        $types = $this->typeRepository->all($perPage);
+        return view('types.index', compact('types'));
     }
 
     public function create()
@@ -33,9 +34,9 @@ class TypeController extends Controller
         $validated = $request->validated();
         try {
             $this->typeRepository->create($validated);
-            return redirect()->route('types.index')->with('success', 'Type created successfully.');
+            return redirect()->route('types.index')->with('success', 'Jenis baru ditambahkan.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create type: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan jenis baru: ' . $e->getMessage());
         }
     }
 
@@ -56,9 +57,9 @@ class TypeController extends Controller
         $validated = $request->validated();
         try {
             $this->typeRepository->update($id, $validated);
-            return redirect()->route('types.index')->with('success', 'Type updated successfully.');
+            return redirect()->route('types.index')->with('success', 'Jenis berhasil diperbarui.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to update type: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui jenis: ' . $e->getMessage());
         }
     }
 
@@ -66,9 +67,9 @@ class TypeController extends Controller
     {
         try {
             $this->typeRepository->delete($id);
-            return redirect()->route('types.index')->with('success', 'Type deleted successfully.');
+            return redirect()->route('types.index')->with('success', 'Berhasil menghapus jenis barang.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete type: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengahpus jenis barang: ' . $e->getMessage());
         }
     }
 }
