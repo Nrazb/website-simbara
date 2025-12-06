@@ -2,12 +2,23 @@
     <div class="relative flex items-center">
         <div class="flex items-center rounded-xl px-2 md:px-3 py-2 cursor-pointer transition">
             <div class="relative inline-block text-left">
-                <button id="userMenuButton" class="flex items-center gap-2 focus:outline-none">
-                    <i id="arrowIcon" class="fas fa-chevron-up text-gray-500 text-xs transition-transform duration-300"></i>
-                    <div class="w-8 h-8 md:w-8 md:h-8 rounded-full border-2 border-blue-900 flex items-center justify-center bg-white">
-                        <i class="fas fa-user text-blue-900 text-sm md:text-lg"></i>
+                <button id="userMenuButton"
+                    class="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-gray-100 transition focus:outline-none">
+                    <div class="w-9 h-9 rounded-full border-2 border-blue-900 flex items-center justify-center bg-white">
+                        <i class="fas fa-user text-blue-900 text-base"></i>
                     </div>
+
+                    <div class="flex flex-col leading-tight text-left">
+                        <span class="font-medium text-sm text-gray-800">
+                            {{ auth()->user()->name }}
+                        </span>
+                        <span class="text-xs text-gray-500">
+                            {{ auth()->user()->role }}
+                        </span>
+                    </div>
+                    <i id="arrowIcon" class="fas fa-chevron-up text-gray-500 text-xs transition-transform duration-300"></i>
                 </button>
+
 
                 <div id="userDropdown"
                     class="hidden absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
