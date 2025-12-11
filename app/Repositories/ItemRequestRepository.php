@@ -6,9 +6,11 @@ use App\Models\ItemRequest;
 
 class ItemRequestRepository implements ItemRequestRepositoryInterface
 {
-    public function all($perPage = 5, $filters = [])
+    public function all(array $filters = [])
     {
-        $query = ItemRequest::query()->with(['type', 'user'])->withTrashed();
+        $query = ItemRequest::query()
+            ->with(['type', 'user'])
+            ->withTrashed();
 
         if (!empty($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
@@ -18,8 +20,8 @@ class ItemRequestRepository implements ItemRequestRepositoryInterface
             $query->whereYear('created_at', $filters['year']);
         }
 
-        return $query->paginate($perPage)
-        ->appends(['per_page' => $perPage, $filters]);
+        // return QUERY, bukan paginate
+        return $query;
     }
 
     public function find($id)

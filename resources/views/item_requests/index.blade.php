@@ -35,6 +35,7 @@
 
     <div class="mb-4 rounded-xl shadow-sm">
         <form method="GET" class="flex flex-wrap items-center gap-4">
+            @if(auth()->user()->role === 'ADMIN')
             <div class="relative min-w-[220px]">
                 <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2
                           text-gray-400 text-sm"></i>
@@ -50,6 +51,7 @@
                     @endforeach
                 </select>
             </div>
+            @endif
 
             <div class="relative min-w-[150px]">
                 <i class="fa-solid fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
@@ -95,7 +97,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-                @foreach ($itemRequests as $data )
+                @forelse ($itemRequests as $data)
                 <tr class="hover:bg-gray-50 transition {{ $data->trashed() ?  'text-red-600' : '' }}" data-id="{{ $data->id }}">
                     <td class="px-4 py-3 font-medium">{{ $data->name}}</td>
                     <td class="px-4 py-3">{{ $data->detail}}</td>
@@ -120,24 +122,30 @@
                         @endif
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="9" class="p-3 text-gray-500 font-light italic text-center">
+                        Tidak ada data saat ini
+                    </td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Tampilan kartu untuk bentuk mobile-->
     <div class="block md:hidden space-y-3">
-        @foreach ($itemRequests as $data )
+        @forelse ($itemRequests as $data)
         <div class="border border-gray-200 rounded-xl p-3 shadow-sm {{ $data->trashed() ?  'text-red-600' : '' }}" data-id="{{ $data->id }}" data-id="{{ $data->id }}">
             <div class="flex justify-between items-center">
                 <h3 class="font-semibold">{{ $data->name}}</h3>
+                <h3 class="font-semibold">{{ $data->user->name}}</h3>
             </div>
             <div class="mt-2 text-sm space-y-1">
                 <p><span class="font-medium">Spesifikasi:</span> {{ $data->detail}}</p>
                 <p><span class="font-medium">Jenis:</span> {{ $data->type->name}}</p>
                 <p><span class="font-medium">Kuantitas:</span> {{ $data->qty}}</p>
                 <p><span class="font-medium">Alasan:</span> {{ $data->reason}}</p>
-                <p><span class="font-medium">Unit:</span> {{ $data->user->name}}</p>
                 <p><span class="font-medium">Tanggal Usulan:</span> {{ $data->created_at}}</p>
                 <p><span class="font-medium">Tanggal Usulan Dihapus:</span> {{ $data->deleted_at}}</p>
             </div>
@@ -156,7 +164,11 @@
                 @endif
             </div>
         </div>
-        @endforeach
+        @empty
+        <div class="mt-2 text-sm space-y-1 italic text-center">
+            <p><span>Tidak ada data saat ini</span></p>
+        </div>
+        @endforelse
     </div>
 
     <div class="flex flex-col sm:flex-row justify-between items-center mt-4 text-xs sm:text-sm text-gray-500 gap-3">

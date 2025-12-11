@@ -24,23 +24,42 @@ class ItemRequestController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 5);
+
         $types = $this->typeRepository->all();
-        $users = User::whereIn('id', function($query) {
-            $query->select('user_id')->from('item_requests');
+
+        $users = User::whereIn('id', function ($query) {
+                $query->select('user_id')->from('item_requests');
             })
             ->orderBy('name')
             ->get();
+
         $years = ItemRequest::selectRaw('YEAR(created_at) as year')
+            ->when(auth()->user()->role !== 'ADMIN', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
             ->distinct()
             ->orderBy('year', 'desc')
             ->get();
+
         $filters = [
             'user_id' => $request->input('user_id'),
             'year'    => $request->input('year'),
         ];
-        $itemRequests = $this->itemRequestRepository->all($perPage, $filters);
+
+        $baseQuery = $this->itemRequestRepository->all($filters);
+
+        if (auth()->user()->role !== 'admin') {
+            $baseQuery->where('user_id', auth()->id());
+        }
+
+        $itemRequests = $baseQuery
+            ->latest()
+            ->paginate($perPage)
+            ->appends($filters);
+
         return view('item_requests.index', compact('itemRequests', 'types', 'users', 'years'));
     }
+
 
     public function create()
     {
