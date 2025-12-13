@@ -15,8 +15,8 @@ class UpdateRemoveItemRequest extends FormRequest
     {
         return [
             'user_id' => 'sometimes|required|exists:users,id',
-            'item_id' => 'sometimes|nullable|exists:items,id',
-            'status' => 'sometimes|required|in:pending,approved,rejected',
+            'item_id' => 'sometimes|required|exists:items,id',
+            'status' => 'sometimes|required|in:STORED,AUCTIONED',
             'unit_confirmed' => 'boolean',
         ];
     }

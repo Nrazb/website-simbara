@@ -33,7 +33,7 @@ class ItemRepository implements ItemRepositoryInterface
 
     public function create(array $data)
     {
-        return Item::create($data);
+        return Item::insert($data);
     }
 
     public function update($id, array $data)

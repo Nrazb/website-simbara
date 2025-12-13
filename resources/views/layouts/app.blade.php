@@ -7,14 +7,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="flex px-2 py-2">
-    @include('components.sidebar')
-
-    <main class="flex-1 flex flex-col bg-gray-50 p-4">
-        <div class="flex-1 p-4 overflow-auto">
+<body>
+    <div class="flex p-2 w-full h-dvh">
+        @include('components.sidebar')
+    
+        <main class="w-full flex flex-1 flex-col bg-gray-50 p-4 overflow-y-auto overflow-x-hidden">
             @yield('content')
-        </div>
-    </main>
+        </main>
+    </div>
     <script>
         const sidebar = document.getElementById('sidebar');
         const hamburger = document.getElementById('hamburger');

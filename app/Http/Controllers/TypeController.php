@@ -24,11 +24,6 @@ class TypeController extends Controller
         return view('types.index', compact('types'));
     }
 
-    public function create()
-    {
-        return view('types.create');
-    }
-
     public function store(StoreTypeRequest $request)
     {
         $validated = $request->validated();
@@ -38,18 +33,6 @@ class TypeController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menambahkan jenis baru: ' . $e->getMessage());
         }
-    }
-
-    public function show($id)
-    {
-        $type = $this->typeRepository->find($id);
-        return view('types.show', compact('type'));
-    }
-
-    public function edit($id)
-    {
-        $type = $this->typeRepository->find($id);
-        return view('types.edit', compact('type'));
     }
 
     public function update(UpdateTypeRequest $request, $id)

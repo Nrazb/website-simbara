@@ -15,7 +15,7 @@ class UpdateMutationItemRequest extends FormRequest
     {
         return [
             'maintenance_unit_id' => 'sometimes|required|exists:users,id',
-            'item_id' => 'sometimes|nullable|exists:items,id',
+            'item_id' => 'sometimes|required|exists:items,id',
             'from_user_id' => 'sometimes|required|exists:users,id',
             'to_user_id' => 'sometimes|required|exists:users,id',
             'unit_confirmed' => 'boolean',

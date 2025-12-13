@@ -15,10 +15,10 @@ class StoreMaintenanceItemRequest extends FormRequest
     {
         return [
             'user_id' => 'required|exists:users,id',
-            'item_id' => 'nullable|exists:items,id',
-            'item_status' => 'nullable|in:good,damaged,lost,repaired',
+            'item_id' => 'required|exists:items,id',
+            'item_status' => 'nullable|in:GOOD,DAMAGED,REPAIRED',
             'information' => 'nullable|string',
-            'request_status' => 'required|in:pending,approved,rejected',
+            'request_status' => 'required|in:PENDING,PROCESS,COMPLETED,REJECTED,REMOVED',
             'unit_confirmed' => 'boolean',
         ];
     }

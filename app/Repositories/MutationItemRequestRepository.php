@@ -8,9 +8,9 @@ class MutationItemRequestRepository implements MutationItemRequestRepositoryInte
 {
     public function all($perPage = 5)
     {
-        return MutationItemRequest::with(['fromUser', 'toUser'])
-        ->paginate($perPage)
-        ->appends(['per_page' => $perPage]);
+        return MutationItemRequest::with(['fromUser', 'toUser', 'item'])
+            ->paginate($perPage)
+            ->appends(['per_page' => $perPage]);
     }
 
     public function find($id)
@@ -34,5 +34,15 @@ class MutationItemRequestRepository implements MutationItemRequestRepositoryInte
     {
         $mutation = MutationItemRequest::findOrFail($id);
         return $mutation->delete();
+    }
+
+    public function confirm($id, string $field)
+    {
+        if (!in_array($field, ['unit_confirmed', 'recipient_confirmed'])) {
+            throw new \InvalidArgumentException('Invalid confirmation field');
+        }
+        $mutation = MutationItemRequest::findOrFail($id);
+        $mutation->update([$field => true]);
+        return $mutation;
     }
 }

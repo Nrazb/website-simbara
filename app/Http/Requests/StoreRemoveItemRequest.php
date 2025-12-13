@@ -15,8 +15,8 @@ class StoreRemoveItemRequest extends FormRequest
     {
         return [
             'user_id' => 'required|exists:users,id',
-            'item_id' => 'nullable|exists:items,id',
-            'status' => 'required|in:pending,approved,rejected',
+            'item_id' => 'required|exists:items,id',
+            'status' => 'required|in:STORED,AUCTIONED',
             'unit_confirmed' => 'boolean',
         ];
     }

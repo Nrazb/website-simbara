@@ -13,6 +13,7 @@ class Item extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+
     protected $fillable = [
         'id',
         'user_id',
@@ -26,6 +27,7 @@ class Item extends Model
         'acquisition_year',
         'status',
     ];
+
 
     public function user()
     {

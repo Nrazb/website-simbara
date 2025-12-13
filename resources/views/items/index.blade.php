@@ -26,10 +26,14 @@
                 <i class="fa-solid fa-plus"></i>
                 <span>Tambah Barang</span>
             </button>
-            <a href="{{ route('items.import') }}" class="border border-gray-300 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-1">
-                <i class="fa-solid fa-download"></i>
-                <span>Import Data</span>
-            </a>
+            <form id="importForm" action="{{ route('items.import') }}" method="POST" enctype="multipart/form-data" class="border border-gray-300 text-gray-700 rounded-lg text-sm font-medium flex items-center space-x-1">
+                @csrf
+                <input id="importInput" type="file" name="file" accept=".xlsx,.xls,.csv" class="hidden">
+                <button type="button" id="importButton" class="px-4 py-2 hover:bg-gray-100 flex items-center space-x-1">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Import Data</span>
+                </button>
+            </form>
         </div>
     </div>
 
@@ -219,5 +223,16 @@
 
     showToast("toast-success");
     showToast("toast-error");
+</script>
+<script>
+    const importButton = document.getElementById('importButton');
+    const importInput = document.getElementById('importInput');
+    const importForm = document.getElementById('importForm');
+    if (importButton && importInput && importForm) {
+        importButton.addEventListener('click', () => importInput.click());
+        importInput.addEventListener('change', () => {
+            if (importInput.files.length > 0) importForm.submit();
+        });
+    }
 </script>
 @endsection

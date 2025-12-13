@@ -6,21 +6,33 @@ use App\Models\ItemRequest;
 
 class ItemRequestRepository implements ItemRequestRepositoryInterface
 {
-    public function all(array $filters = [])
+    public function all()
     {
         $query = ItemRequest::query()
             ->with(['type', 'user'])
             ->withTrashed();
 
-        if (!empty($filters['user_id'])) {
-            $query->where('user_id', $filters['user_id']);
+        $search = trim((string) request()->input('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                    ->orWhere('detail', 'like', "%$search%")
+                    ->orWhereHas('type', function ($t) use ($search) {
+                        $t->where('name', 'like', "%$search%");
+                    });
+            });
         }
 
-        if (!empty($filters['year'])) {
-            $query->whereYear('created_at', $filters['year']);
+        $userId = request()->input('user_id');
+        if (!empty($userId)) {
+            $query->where('user_id', $userId);
         }
 
-        // return QUERY, bukan paginate
+        $year = request()->input('year');
+        if (!empty($year)) {
+            $query->whereYear('created_at', $year);
+        }
+
         return $query;
     }
 

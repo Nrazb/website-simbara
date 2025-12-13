@@ -4,8 +4,9 @@ namespace App\Imports;
 
 use App\Models\Item;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class ItemsImport implements ToModel
+class ItemsImport implements ToModel, WithHeadingRow
 {
     /**
     * @param array $row
@@ -15,17 +16,17 @@ class ItemsImport implements ToModel
     public function model(array $row)
     {
         return new Item([
-            'id' => $row[0],
-            'user_id' => $row[1],
-            'type_id' => $row[2],
-            'maintenance_unit_id' => $row[3],
-            'code' => $row[4],
-            'order_number' => $row[5],
-            'name' => $row[6],
-            'cost' => $row[7],
-            'acquisition_date' => $row[8],
-            'acquisition_year' => $row[9],
-            'status' => $row[10] ?? 'AVAILABLE',
+            'id' => $row['id'],
+            'user_id' => $row['user_id'],
+            'type_id' => $row['type_id'],
+            'maintenance_unit_id' => $row['maintenance_unit_id'],
+            'code' => $row['code'],
+            'order_number' => $row['order_number'],
+            'name' => $row['name'],
+            'cost' => $row['cost'],
+            'acquisition_date' => $row['acquisition_date'],
+            'acquisition_year' => $row['acquisition_year'],
+            'status' => $row['status'],
         ]);
     }
 }

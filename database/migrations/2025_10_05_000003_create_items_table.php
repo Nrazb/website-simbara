@@ -13,8 +13,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->noActionOnDelete();
             $table->foreignId('type_id')->constrained('types')->noActionOnDelete();
             $table->foreignId('maintenance_unit_id')->constrained('users')->noActionOnDelete();
-            $table->string('code')->unique();
-            $table->integer('order_number')->unique();
+            $table->string('code');
+            $table->integer('order_number');
             $table->string('name');
             $table->integer('cost');
             $table->date('acquisition_date');
@@ -22,6 +22,8 @@ return new class extends Migration
             $table->enum('status', ['AVAILABLE', 'BORROWED'])->default('AVAILABLE');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['code', 'order_number']);
         });
     }
 

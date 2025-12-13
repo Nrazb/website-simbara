@@ -21,7 +21,6 @@ class MutationItemRequestFactory extends Factory
         $item = Item::factory()->create();
 
         return [
-            'maintenance_unit_id' => 3,
             'item_id' => $item->id,
             'from_user_id' => mt_rand(1, 6),
             'to_user_id' => mt_rand(1, 6),

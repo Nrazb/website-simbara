@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreMutationItemRequest extends FormRequest
 {
@@ -14,12 +15,16 @@ class StoreMutationItemRequest extends FormRequest
     public function rules()
     {
         return [
-            'maintenance_unit_id' => 'required|exists:users,id',
-            'item_id' => 'nullable|exists:items,id',
+            'item_id' => 'required|exists:items,id',
             'from_user_id' => 'required|exists:users,id',
             'to_user_id' => 'required|exists:users,id',
-            'unit_confirmed' => 'boolean',
-            'recipient_confirmed' => 'boolean',
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'from_user_id' => Auth::user()->id,
+        ]);
     }
 }

@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('mutation_item_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('maintenance_unit_id')->references('id')->on('users')->noActionOnDelete();
             $table->string('item_id');
             $table->foreign('item_id')->references('id')->on('items')->noActionOnDelete();
             $table->foreignId('from_user_id')->references('id')->on('users')->noActionOnDelete();

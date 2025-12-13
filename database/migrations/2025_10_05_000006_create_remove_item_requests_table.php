@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->noActionOnDelete();
             $table->string('item_id');
             $table->foreign('item_id')->references('id')->on('items')->noActionOnDelete();
-            $table->enum('status', ['STORED', 'AUCTIONED'])->default('STORED');
+            $table->enum('status', ['PROCESS', 'STORED', 'AUCTIONED'])->default('PROCESS');
             $table->boolean('unit_confirmed')->default(false);
             $table->timestamps();
             $table->softDeletes();

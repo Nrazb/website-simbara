@@ -7,3 +7,9 @@
 body {
   font-family: 'Instrument Sans', sans-serif;
 }
+
+@layer base {
+  button:disabled {
+    @apply bg-gray-400 cursor-not-allowed;
+  }
+}

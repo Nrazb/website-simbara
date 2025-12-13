@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\MaintenanceItemRequestRepositoryInterface;
-use App\Http\Requests\StoreMaintenanceItemRequest;
-use App\Http\Requests\UpdateMaintenanceItemRequest;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\QueryException;
+use App\Models\MaintenanceItemRequest;
 
 class MaintenanceItemRequestController extends Controller
 {
@@ -18,57 +20,75 @@ class MaintenanceItemRequestController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 5);
-        $maintenanceItemRequests = $this->maintenanceItemRequestRepository->all($perPage);
+        $maintenanceItemRequests = $this->maintenanceItemRequestRepository->all();
         return view('maintenance_item_requests.index', compact('maintenanceItemRequests'));
     }
 
-    public function create()
+    public function confirmUnit(MaintenanceItemRequest $maintenanceItemRequest)
     {
-        return view('maintenance_item_requests.create');
-    }
-
-    public function store(StoreMaintenanceItemRequest $request)
-    {
-        $validated = $request->validated();
+        $ownerId = $maintenanceItemRequest->user_id;
+        $user = Auth::user();
         try {
-            $this->maintenanceItemRequestRepository->create($validated);
-            return redirect()->route('maintenance_item_requests.index')->with('success', 'Maintenance item request created successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create maintenance item request: ' . $e->getMessage());
+            if ($user->id !== $ownerId) {
+                return back()->with('error', 'Akses ditolak: hanya pemilik data yang dapat mengkonfirmasi unit.');
+            }
+            if ($maintenanceItemRequest->unit_confirmed) {
+                return back()->with('success', 'Unit sudah dikonfirmasi.');
+            }
+            $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['unit_confirmed' => true]);
+            return back()->with('success', 'Konfirmasi unit berhasil.');
+        } catch (QueryException $e) {
+            return back()->with('error', 'Kesalahan database saat memproses tindakan.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal memproses tindakan.');
         }
     }
 
-    public function show($id)
+    public function updateRequestStatus(Request $request, MaintenanceItemRequest $maintenanceItemRequest)
     {
-        $maintenanceItemRequest = $this->maintenanceItemRequestRepository->find($id);
-        return view('maintenance_item_requests.show', compact('maintenanceItemRequest'));
-    }
-
-    public function edit($id)
-    {
-        $maintenanceItemRequest = $this->maintenanceItemRequestRepository->find($id);
-        return view('maintenance_item_requests.edit', compact('maintenanceItemRequest'));
-    }
-
-    public function update(UpdateMaintenanceItemRequest $request, $id)
-    {
-        $validated = $request->validated();
+        $user = Auth::user();
         try {
-            $this->maintenanceItemRequestRepository->update($id, $validated);
-            return redirect()->route('maintenance_item_requests.index')->with('success', 'Maintenance item request updated successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to update maintenance item request: ' . $e->getMessage());
+            if ($user->role !== 'MAINTENANCE_UNIT') {
+                return back()->with('error', 'Akses ditolak: hanya unit pemeliharaan yang dapat memperbarui status pemeliharaan.');
+            }
+            if ($maintenanceItemRequest->unit_confirmed) {
+                return back()->with('error', 'Perubahan tidak diizinkan setelah konfirmasi unit.');
+            }
+            $value = $request->input('value');
+            $allowed = ['PENDING', 'PROCESS', 'COMPLETED', 'REJECTED', 'REMOVED'];
+            if (!in_array($value, $allowed, true)) {
+                return back()->with('error', 'Status pemeliharaan tidak valid.');
+            }
+            $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['request_status' => $value]);
+            return back()->with('success', 'Status pemeliharaan diperbarui.');
+        } catch (QueryException $e) {
+            return back()->with('error', 'Kesalahan database saat memproses tindakan.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal memproses tindakan.');
         }
     }
 
-    public function destroy($id)
+    public function updateItemStatus(Request $request, MaintenanceItemRequest $maintenanceItemRequest)
     {
+        $user = Auth::user();
         try {
-            $this->maintenanceItemRequestRepository->delete($id);
-            return redirect()->route('maintenance_item_requests.index')->with('success', 'Maintenance item request deleted successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete maintenance item request: ' . $e->getMessage());
+            if ($user->role !== 'MAINTENANCE_UNIT') {
+                return back()->with('error', 'Akses ditolak: hanya unit pemeliharaan yang dapat memperbarui status barang.');
+            }
+            if ($maintenanceItemRequest->unit_confirmed) {
+                return back()->with('error', 'Perubahan tidak diizinkan setelah konfirmasi unit.');
+            }
+            $value = $request->input('value');
+            $allowed = ['GOOD', 'DAMAGED', 'REPAIRED'];
+            if (!in_array($value, $allowed, true)) {
+                return back()->with('error', 'Status barang tidak valid.');
+            }
+            $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['item_status' => $value]);
+            return back()->with('success', 'Status barang diperbarui.');
+        } catch (QueryException $e) {
+            return back()->with('error', 'Kesalahan database saat memproses tindakan.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal memproses tindakan.');
         }
     }
 }

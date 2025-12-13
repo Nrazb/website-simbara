@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Repositories\MutationItemRequestRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreMutationItemRequest;
-use App\Http\Requests\UpdateMutationItemRequest;
 use App\Repositories\ItemRepositoryInterface;
 use App\Repositories\UserRepositoryInterface;
+use Illuminate\Database\QueryException;
+use App\Models\MutationItemRequest;
+use Illuminate\Support\Facades\Auth;
 
 class MutationItemRequestController extends Controller
 {
@@ -41,42 +43,44 @@ class MutationItemRequestController extends Controller
         $validated = $request->validated();
         try {
             $this->mutationItemRequestRepository->create($validated);
-            return redirect()->route('mutation_item_requests.index')->with('success', 'Mutation item request created successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create mutation item request: ' . $e->getMessage());
+            return redirect()->route('mutation-item-requests.index')->with('success', 'Mutation item request created successfully.');
+        } catch (QueryException $e) {
+            $code = $e->getCode();
+            $msg = $code == 23000 ? 'Data duplikat atau referensi tidak valid.' : 'Kesalahan database. Coba lagi.';
+            return redirect()->back()->withInput()->with('error', $msg);
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', 'Failed to create mutation item request.');
         }
     }
 
-    public function show($id)
+    public function confirm(Request $request, MutationItemRequest $mutationItemRequest)
     {
-        $mutationItemRequest = $this->mutationItemRequestRepository->find($id);
-        return view('mutation_item_requests.show', compact('mutationItemRequest'));
-    }
+        $data = $request->validate([
+            'target' => 'required|in:unit,recipient',
+        ]);
 
-    public function edit($id)
-    {
-        $mutationItemRequest = $this->mutationItemRequestRepository->find($id);
-        return view('mutation_item_requests.edit', compact('mutationItemRequest'));
-    }
+        $userId = Auth::user()->id;
+        $field = $data['target'] === 'unit' ? 'unit_confirmed' : 'recipient_confirmed';
 
-    public function update(UpdateMutationItemRequest $request, $id)
-    {
-        $validated = $request->validated();
-        try {
-            $this->mutationItemRequestRepository->update($id, $validated);
-            return redirect()->route('mutation_item_requests.index')->with('success', 'Mutation item request updated successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to update mutation item request: ' . $e->getMessage());
+        if ($data['target'] === 'unit' && $userId !== $mutationItemRequest->from_user_id) {
+            return back()->with('error', 'Hanya unit asal yang dapat mengkonfirmasi.');
         }
-    }
 
-    public function destroy($id)
-    {
+        if ($data['target'] === 'recipient' && $userId !== $mutationItemRequest->to_user_id) {
+            return back()->with('error', 'Hanya unit tujuan yang dapat mengkonfirmasi.');
+        }
+
+        if ($mutationItemRequest->{$field}) {
+            return back()->with('success', 'Status sudah dikonfirmasi.');
+        }
+
         try {
-            $this->mutationItemRequestRepository->delete($id);
-            return redirect()->route('mutation_item_requests.index')->with('success', 'Mutation item request deleted successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete mutation item request: ' . $e->getMessage());
+            $this->mutationItemRequestRepository->confirm($mutationItemRequest->id, $field);
+            return back()->with('success', 'Konfirmasi berhasil.');
+        } catch (QueryException $e) {
+            return back()->with('error', 'Kesalahan database saat konfirmasi.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal mengkonfirmasi.');
         }
     }
 }

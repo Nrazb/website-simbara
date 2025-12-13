@@ -8,12 +8,28 @@ use Illuminate\Support\Facades\Hash;
 
 class UserRepository implements UserRepositoryInterface
 {
-    public function all($perPage = 5, $filters=[])
+    public function all()
     {
+        $perPage = request()->input('per_page', 5);
         $query = User::query()->withTrashed();
+
+        $search = trim((string) request()->input('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('code', 'like', "%$search%");
+            });
+        }
+
+        $role = request()->input('role');
+        if (!empty($role)) {
+            $query->where('role', $role);
+        }
+
         return $query->paginate($perPage)->appends([
             'per_page' => $perPage,
-            $filters
+            'search' => request()->input('search'),
+            'role' => $role,
         ]);
     }
 

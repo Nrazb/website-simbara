@@ -11,18 +11,12 @@ class MutationItemRequest extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'maintenance_unit_id',
         'item_id',
         'from_user_id',
         'to_user_id',
         'unit_confirmed',
         'recipient_confirmed',
     ];
-
-    public function maintenanceUnit()
-    {
-        return $this->belongsTo(User::class, 'maintenance_unit_id');
-    }
 
     public function item()
     {

@@ -15,10 +15,10 @@ class UpdateMaintenanceItemRequest extends FormRequest
     {
         return [
             'user_id' => 'sometimes|required|exists:users,id',
-            'item_id' => 'sometimes|nullable|exists:items,id',
-            'item_status' => 'sometimes|nullable|in:good,damaged,lost,repaired',
+            'item_id' => 'sometimes|required|exists:items,id',
+            'item_status' => 'sometimes|nullable|in:GOOD,DAMAGED,REPAIRED',
             'information' => 'sometimes|nullable|string',
-            'request_status' => 'sometimes|required|in:pending,approved,rejected',
+            'request_status' => 'sometimes|required|in:PENDING,PROCESS,COMPLETED,REJECTED,REMOVED',
             'unit_confirmed' => 'boolean',
         ];
     }

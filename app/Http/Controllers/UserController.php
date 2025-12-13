@@ -20,15 +20,10 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page',5);
-        $users = $this->userRepository->all($perPage);
+        $users = $this->userRepository->all();
         return view('users.index', compact('users'));
     }
 
-    public function create()
-    {
-        return view('users.create');
-    }
 
     public function store(StoreUserRequest $request)
     {
@@ -42,17 +37,6 @@ class UserController extends Controller
         }
     }
 
-    public function show($id)
-    {
-        $user = $this->userRepository->find($id);
-        return view('users.show', compact('user'));
-    }
-
-    public function edit($id)
-    {
-        $user = $this->userRepository->find($id);
-        return view('users.edit', compact('user'));
-    }
 
     public function update(UpdateUserRequest $request, $id)
     {

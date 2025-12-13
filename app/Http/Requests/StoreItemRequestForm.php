@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreItemRequestForm extends FormRequest
 {
@@ -13,22 +14,23 @@ class StoreItemRequestForm extends FormRequest
 
     public function prepareForValidation()
     {
-        if ($this->has('code') && $this->has('order_number')) {
-            $this->merge([
-                'id' => $this->get('code') . '-' . $this->get('order_number'),
-            ]);
-        }
+        $this->merge([
+            'user_id' => Auth::user()->id,
+        ]);
     }
 
     public function rules()
     {
+        $itemRequest = $this->route('itemRequest');
+        $maxQty = $itemRequest ? (int) $itemRequest->qty : null;
+
         return [
-            'id' => 'required|string|unique:items,id',
+            'id' => 'sometimes|string|unique:items,id',
             'user_id' => 'required|exists:users,id',
-            'type_id' => 'nullable|exists:types,id',
-            'maintenance_unit_id' => 'nullable|exists:users,id',
-            'code' => 'required|string|unique:items,code',
-            'order_number' => 'required|integer|unique:items,order_number',
+            'type_id' => 'required|exists:types,id',
+            'maintenance_unit_id' => 'required|exists:users,id',
+            'code' => 'required|string',
+            'quantity' => 'required|integer|min:1' . ($maxQty !== null ? '|max:' . $maxQty : ''),
             'name' => 'required|string|max:255',
             'cost' => 'required|integer',
             'acquisition_date' => 'required|date',

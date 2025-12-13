@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Repositories\RemoveItemRequestRepositoryInterface;
 use Illuminate\Http\Request;
-use App\Http\Requests\StoreRemoveItemRequest;
-use App\Http\Requests\UpdateRemoveItemRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\QueryException;
 use App\Models\User;
+use App\Models\Item;
+use App\Models\RemoveItemRequest;
 
 class RemoveItemRequestController extends Controller
 {
@@ -19,66 +21,81 @@ class RemoveItemRequestController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 5);
         $users = User::whereIn('id', function($query) {
             $query->select('user_id')->from('remove_item_requests');
-            })
-            ->orderBy('name')
-            ->get();
-        $filters = [
-            'user_id' => $request->input('user_id'),
-        ];
+        })
+        ->orderBy('name')
+        ->get();
 
-        $removeItemRequests = $this->removeItemRequestRepository->all($perPage, $filters);
-        return view('remove_item_requests.index', compact('removeItemRequests', 'users'));
+        $removeItemRequests = $this->removeItemRequestRepository->all();
+
+        $items = null;
+        if (Auth::user()->role !== 'ADMIN') {
+            $items = Item::where('user_id', Auth::id())->latest()->get();
+        }
+
+        return view('remove_item_requests.index', compact('removeItemRequests', 'users', 'items'));
     }
 
-    public function create()
+    public function store(Request $request)
     {
-        return view('remove_item_requests.create');
-    }
+        $validated = $request->validate([
+            'item_id' => 'required|exists:items,id',
+        ]);
 
-    public function store(StoreRemoveItemRequest $request)
-    {
-        $validated = $request->validated();
         try {
-            $this->removeItemRequestRepository->create($validated);
-            return redirect()->route('remove_item_requests.index')->with('success', 'Remove item request created successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create remove item request: ' . $e->getMessage());
+            $data = [
+                'user_id' => Auth::id(),
+                'item_id' => $validated['item_id'],
+                'status' => 'PROCESS',
+                'unit_confirmed' => false,
+            ];
+            $this->removeItemRequestRepository->create($data);
+            return back()->with('success', 'Pengajuan penghapusan barang ditambahkan.');
+        } catch (QueryException $e) {
+            return back()->with('error', 'Kesalahan database saat menambahkan pengajuan.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal menambahkan pengajuan.');
         }
     }
 
-    public function show($id)
+    public function confirmUnit(RemoveItemRequest $removeItemRequest)
     {
-        $removeItemRequest = $this->removeItemRequestRepository->find($id);
-        return view('remove_item_requests.show', compact('removeItemRequest'));
-    }
-
-    public function edit($id)
-    {
-        $removeItemRequest = $this->removeItemRequestRepository->find($id);
-        return view('remove_item_requests.edit', compact('removeItemRequest'));
-    }
-
-    public function update(UpdateRemoveItemRequest $request, $id)
-    {
-        $validated = $request->validated();
+        $user = Auth::user();
         try {
-            $this->removeItemRequestRepository->update($id, $validated);
-            return redirect()->route('remove_item_requests.index')->with('success', 'Remove item request updated successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to update remove item request: ' . $e->getMessage());
+            if ($user->id !== $removeItemRequest->user_id) {
+                return back()->with('error', 'Akses ditolak.');
+            }
+            if ($removeItemRequest->unit_confirmed) {
+                return back()->with('success', 'Unit sudah dikonfirmasi.');
+            }
+            $this->removeItemRequestRepository->update($removeItemRequest->id, ['unit_confirmed' => true]);
+            return back()->with('success', 'Unit dikonfirmasi.');
+        } catch (QueryException $e) {
+            return back()->with('error', 'Kesalahan database saat memproses.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal memproses.');
         }
     }
 
-    public function destroy($id)
+    public function updateStatus(Request $request, RemoveItemRequest $removeItemRequest)
     {
+        $user = Auth::user();
         try {
-            $this->removeItemRequestRepository->delete($id);
-            return redirect()->route('remove_item_requests.index')->with('success', 'Remove item request deleted successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete remove item request: ' . $e->getMessage());
+            if ($user->role !== 'ADMIN') {
+                return back()->with('error', 'Akses ditolak.');
+            }
+            $status = $request->input('status');
+            $allowed = ['PROCESS', 'STORED', 'AUCTIONED'];
+            if (!in_array($status, $allowed, true)) {
+                return back()->with('error', 'Status tidak valid.');
+            }
+            $this->removeItemRequestRepository->update($removeItemRequest->id, ['status' => $status]);
+            return back()->with('success', 'Status penghapusan diperbarui.');
+        } catch (QueryException $e) {
+            return back()->with('error', 'Kesalahan database saat memproses.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal memproses.');
         }
     }
 }
