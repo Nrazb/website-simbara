@@ -10,7 +10,7 @@
 <body>
     <div class="flex p-2 w-full h-dvh">
         @include('components.sidebar')
-    
+
         <main class="w-full flex flex-1 flex-col bg-gray-50 p-4 overflow-y-auto overflow-x-hidden">
             @yield('content')
         </main>

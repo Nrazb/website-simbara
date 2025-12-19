@@ -33,6 +33,15 @@ class ItemRequestRepository implements ItemRequestRepositoryInterface
             $query->whereYear('created_at', $year);
         }
 
+        $status = request()->input('status');
+        if (!empty($status)) {
+            if ($status === 'draft') {
+                $query->whereNull('sent_at');
+            } elseif ($status === 'sent') {
+                $query->whereNotNull('sent_at');
+            }
+        }
+
         return $query;
     }
 

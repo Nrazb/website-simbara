@@ -7,18 +7,20 @@
         <!-- Ini kiri yang biru -->
         <div class="w-1/2 bg-blue-900 text-white flex flex-col rounded-r-3xl">
             <div class="flex-1 flex flex-col z-10">
-                <div class="flex items-center gap-3 px-4 md:px-6 py-4">
-                    <img src="{{ asset('images/polindra.png') }}" alt="Logo" class="w-10 h-10 md:w-12 md:h-12" />
-                    <div class="flex flex-col text-left">
-                        <span class="font-bold text-base md:text-lg leading-tight">SIMBARA</span>
-                        <span class="font-bold text-base md:text-lg leading-tight">POLINDRA</span>
+                <a href="/">
+                    <div class="flex items-center gap-3 px-4 md:px-6 py-4">
+                        <img src="{{ asset('images/polindra.png') }}" alt="Logo" class="w-10 h-10 md:w-12 md:h-12" />
+                        <div class="flex flex-col text-left">
+                            <span class="font-bold text-base md:text-lg leading-tight">SIMBARA</span>
+                            <span class="font-bold text-base md:text-lg leading-tight">POLINDRA</span>
+                        </div>
+                        <div class="hidden md:block h-10 md:h-12 w-px bg-gray-400 mx-2 md:mx-3"></div>
+                        <p class="hidden md:block text-xs md:text-sm text-white leading-snug">
+                            Sistem Informasi Manajemen <br>
+                            Barang Milik Negara
+                        </p>
                     </div>
-                    <div class="hidden md:block h-10 md:h-12 w-px bg-gray-400 mx-2 md:mx-3"></div>
-                    <p class="hidden md:block text-xs md:text-sm text-white leading-snug">
-                        Sistem Informasi Manajemen <br>
-                        Barang Milik Negara
-                    </p>
-                </div>
+                </a>
 
                 <div class="flex flex-col justify-end h-1/2 px-6 py-8">
                     <h1 class="text-4xl font-bold mb-2">Selamat Datang!</h1>

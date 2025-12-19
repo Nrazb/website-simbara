@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/item-requests', [ItemRequestController::class, 'store'])->name('item-requests.store');
     Route::put('/item-requests/{id}', [ItemRequestController::class, 'update'])->name('item-requests.update');
     Route::delete('/item-requests/{id}', [ItemRequestController::class, 'destroy'])->name('item-requests.destroy');
+    Route::patch('/item-requests/{id}/send', [ItemRequestController::class, 'send'])->name('item-requests.send');
 
     Route::get('/items', [ItemController::class, 'index'])->name('items.index');
     Route::get('/items/create', [ItemController::class, 'create'])->name('items.create');

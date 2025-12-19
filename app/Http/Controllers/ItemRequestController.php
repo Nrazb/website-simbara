@@ -44,19 +44,22 @@ class ItemRequestController extends Controller
 
         $baseQuery = $this->itemRequestRepository->all();
 
-        if (Auth::user()->role !== 'admin') {
+        if (Auth::user()->role !== 'ADMIN') {
             $baseQuery->where('user_id', Auth::user()->id);
+        }
+
+        if ($request->filled('status')) {
+            if ($request->status === 'draft') {
+                $baseQuery->whereNull('sent_at');
+            } elseif ($request->status === 'sent') {
+                $baseQuery->whereNotNull('sent_at');
+            }
         }
 
         $itemRequests = $baseQuery
             ->latest()
             ->paginate($perPage)
-            ->appends([
-                'per_page' => $perPage,
-                'search' => $request->input('search'),
-                'user_id' => $request->input('user_id'),
-                'year' => $request->input('year'),
-            ]);
+            ->appends($request->all());
 
         return view('item_requests.index', compact('itemRequests', 'types', 'users', 'years'));
     }
@@ -66,32 +69,75 @@ class ItemRequestController extends Controller
     public function store(StoreItemRequest $request)
     {
         $validated = $request->validated();
+
+        // Status default: draft → sent_at = null
+        $validated['sent_at'] = null;
+        $validated['user_id'] = Auth::id();
+
         try {
             $this->itemRequestRepository->create($validated);
-            return back()->with('success', 'Item request created successfully.');
+            return back()->with('success', 'Usulan berhasil dibuat sebagai DRAFT.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create item request: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with(
+                'error',
+                'Gagal membuat usulan: ' . $e->getMessage()
+            );
         }
     }
 
     public function update(UpdateItemRequest $request, $id)
     {
-        $validated = $request->validated();
+        $item = ItemRequest::findOrFail($id);
+
+        // Cegah edit jika sudah dikirim
+        if ($item->sent_at !== null) {
+            return back()->with('error', 'Usulan sudah dikirim dan tidak dapat diedit.');
+        }
+
         try {
-            $this->itemRequestRepository->update($id, $validated);
-            return back()->with('success', 'Item request updated successfully.');
+            $this->itemRequestRepository->update($id, $request->validated());
+            return back()->with('success', 'Usulan berhasil diperbarui.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Failed to update item request: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memperbarui usulan: ' . $e->getMessage());
         }
     }
 
     public function destroy($id)
     {
+        $item = ItemRequest::findOrFail($id);
+
+        // Cegah hapus jika sudah dikirim
+        if ($item->sent_at !== null) {
+            return back()->with('error', 'Usulan yang sudah dikirim tidak dapat dihapus.');
+        }
+
         try {
             $this->itemRequestRepository->delete($id);
-            return back()->with('success', 'Item request deleted successfully.');
+            return back()->with('success', 'Usulan berhasil dihapus.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete item request: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus usulan: ' . $e->getMessage());
         }
+    }
+
+    public function send($id)
+    {
+        $item = ItemRequest::findOrFail($id);
+
+        if ($item->sent_at !== null) {
+            return back()->with('error', 'Usulan sudah dikirim sebelumnya.');
+        }
+
+        $item->update([
+            'sent_at' => now()
+        ]);
+
+        return back()->with('success', 'Usulan berhasil dikirim.');
+    }
+
+    public function show($id)
+    {
+        $item = ItemRequest::with(['user', 'type'])->findOrFail($id);
+
+        return view('item_requests.show', compact('item'));
     }
 }

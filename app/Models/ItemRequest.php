@@ -17,6 +17,7 @@ class ItemRequest extends Model
         'detail',
         'qty',
         'reason',
+        'sent_at',
     ];
 
     public function user()
@@ -28,4 +29,15 @@ class ItemRequest extends Model
     {
         return $this->belongsTo(Type::class);
     }
+
+    public function isDraft(): bool
+    {
+        return is_null($this->sent_at);
+    }
+
+    public function isSent(): bool
+    {
+        return !is_null($this->sent_at);
+    }
+
 }
