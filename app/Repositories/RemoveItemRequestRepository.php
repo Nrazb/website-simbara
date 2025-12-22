@@ -34,6 +34,15 @@ class RemoveItemRequestRepository implements RemoveItemRequestRepositoryInterfac
             });
         }
 
+        $startDate = request()->input('start_date');
+        $endDate = request()->input('end_date');
+        if (!empty($startDate)) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if (!empty($endDate)) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
         return $query->paginate($perPage)
             ->appends([
                 'per_page' => $perPage,
@@ -41,6 +50,8 @@ class RemoveItemRequestRepository implements RemoveItemRequestRepositoryInterfac
                 'user_id' => $userId,
                 'status' => $status,
                 'unit_confirmed' => $unitConfirmed,
+                'start_date' => request()->input('start_date'),
+                'end_date' => request()->input('end_date'),
             ]);
     }
 

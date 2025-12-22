@@ -26,7 +26,7 @@ class MaintenanceItemRequestFactory extends Factory
             'item_id' => $item->id,
             'item_status' => $this->faker->randomElement(['GOOD', 'DAMAGED', 'REPAIRED']),
             'information' => $this->faker->sentence,
-            'request_status' => $this->faker->randomElement(['PENDING', 'PROCESS', 'COMPLETED', 'REJECTED', 'REMOVED']),
+            'maintenance_status' => $this->faker->randomElement(['PENDING', 'PROCESS', 'COMPLETED', 'REJECTED', 'REMOVED']),
             'unit_confirmed' => $this->faker->boolean,
         ];
     }

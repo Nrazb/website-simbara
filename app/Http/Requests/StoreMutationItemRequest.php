@@ -17,7 +17,7 @@ class StoreMutationItemRequest extends FormRequest
         return [
             'item_id' => 'required|exists:items,id',
             'from_user_id' => 'required|exists:users,id',
-            'to_user_id' => 'required|exists:users,id',
+            'to_user_id' => 'required|exists:users,id|different:from_user_id',
         ];
     }
 

@@ -14,7 +14,6 @@ class UpdateMutationItemRequest extends FormRequest
     public function rules()
     {
         return [
-            'maintenance_unit_id' => 'sometimes|required|exists:users,id',
             'item_id' => 'sometimes|required|exists:items,id',
             'from_user_id' => 'sometimes|required|exists:users,id',
             'to_user_id' => 'sometimes|required|exists:users,id',

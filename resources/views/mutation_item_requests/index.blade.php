@@ -12,30 +12,151 @@
         @include('components.header')
     </div>
     <div class="p-4 sm:p-6 bg-white rounded-2xl shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <div class="flex items-center gap-2">
-                <button onclick="window.location.href='{{ route('mutation-item-requests.create') }}'"
-                    class="bg-blue-900 hover:bg-amber-400 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-1">
-                    <i class="fas fa-exchange-alt"></i>
-                    <span>Mutasi Barang</span>
-                </button>
-            </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4"></div>
+        <div class="mb-4 rounded-xl shadow-sm">
+            <form method="GET" class="flex flex-col gap-1" x-data x-ref="filterForm">
+                <div class="flex flex-col items-start gap-4 w-full">
+                    <div class="flex flex-col">
+                        <label class="text-gray-500 text-sm font-medium">Saring</label>
+                        <div class="flex gap-2 items-center">
+                            <div class="relative min-w-[220px]">
+                                <i
+                                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                <input type="text" name="search" placeholder="Cari Barang"
+                                    value="{{ request('search') }}"
+                                    class="w-full border rounded-lg pl-9 pr-8 py-2 bg-white shadow-sm text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        @if (auth()->user()->role === 'ADMIN')
+                            <div class="flex flex-col">
+                                <label class="block text-gray-500 text-sm font-medium mb-1">Asal Unit</label>
+                                <div class="relative min-w-[200px]">
+                                    <i
+                                        class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                    <select name="from_user_id" @change="$refs.filterForm.submit()"
+                                        class="w-full border rounded-lg pl-9 pr-8 py-2 bg-white shadow-sm text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition">
+                                        <option value="">Semua Asal</option>
+                                        @isset($users)
+                                            @foreach ($users as $user)
+                                                <option value="{{ $user->id }}"
+                                                    {{ request('from_user_id') == $user->id ? 'selected' : '' }}>
+                                                    {{ $user->name }}
+                                                </option>
+                                            @endforeach
+                                        @endisset
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="block text-gray-500 text-sm font-medium mb-1">Tujuan Unit</label>
+                                <div class="relative min-w-[200px]">
+                                    <i
+                                        class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                    <select name="to_user_id" @change="$refs.filterForm.submit()"
+                                        class="w-full border rounded-lg pl-9 pr-8 py-2 bg-white shadow-sm text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition">
+                                        <option value="">Semua Tujuan</option>
+                                        @isset($users)
+                                            @foreach ($users as $user)
+                                                <option value="{{ $user->id }}"
+                                                    {{ request('to_user_id') == $user->id ? 'selected' : '' }}>
+                                                    {{ $user->name }}
+                                                </option>
+                                            @endforeach
+                                        @endisset
+                                    </select>
+                                </div>
+                            </div>
+                        @endif
+                        <div class="relative min-w-[180px]">
+                            <label class="block text-gray-500 text-sm font-medium mb-1">Konfirmasi Unit Asal</label>
+                            <select name="unit_confirmed" @change="$refs.filterForm.submit()"
+                                class="w-full border rounded-lg px-3 py-2 pr-8 bg-white shadow-sm focus:ring focus:ring-blue-300">
+                                <option value="">Semua</option>
+                                <option value="1" {{ request('unit_confirmed') === '1' ? 'selected' : '' }}>Sudah
+                                </option>
+                                <option value="0" {{ request('unit_confirmed') === '0' ? 'selected' : '' }}>Belum
+                                </option>
+                            </select>
+                        </div>
+                        <div class="relative min-w-[180px]">
+                            <label class="block text-gray-500 text-sm font-medium mb-1">Konfirmasi Unit Tujuan</label>
+                            <select name="recipient_confirmed" @change="$refs.filterForm.submit()"
+                                class="w-full border rounded-lg px-3 py-2 pr-8 bg-white shadow-sm focus:ring focus:ring-blue-300">
+                                <option value="">Semua</option>
+                                <option value="1" {{ request('recipient_confirmed') === '1' ? 'selected' : '' }}>
+                                    Sudah</option>
+                                <option value="0" {{ request('recipient_confirmed') === '0' ? 'selected' : '' }}>
+                                    Belum</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4 w-full">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-gray-500 text-sm font-medium">Rentang Tanggal (Dibuat)</label>
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-2">
+                                    <div class="relative min-w-[150px]">
+                                        <i
+                                            class="fa-solid fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                        <input type="date" name="start_date" value="{{ request('start_date') }}"
+                                            @change="$refs.filterForm.submit()"
+                                            class="border rounded-lg pl-9 pr-8 py-2 bg-white shadow-sm text-sm focus:ring-2 focus:ring-blue-400" />
+                                    </div>
+                                    <span class="text-gray-500">-</span>
+                                    <div class="relative min-w-[150px]">
+                                        <input type="date" name="end_date" value="{{ request('end_date') }}"
+                                            @change="$refs.filterForm.submit()"
+                                            class="border rounded-lg px-3 py-2 bg-white shadow-sm text-sm focus:ring-2 focus:ring-blue-400" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="per_page" value="{{ request('per_page', 5) }}">
+
+                @if (request()->anyFilled([
+                        'search',
+                        'from_user_id',
+                        'to_user_id',
+                        'unit_confirmed',
+                        'recipient_confirmed',
+                        'start_date',
+                        'end_date',
+                    ]))
+                    <a href="{{ route('mutation-item-requests.index') }}"
+                        class="flex items-center gap-2 px-4 py-2 bg-white text-gray-600 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-100 shadow-sm transition">
+                        <i class="fa-solid fa-rotate-left text-gray-500"></i>
+                        Reset
+                    </a>
+                @endif
+            </form>
         </div>
 
         <div x-data class="overflow-x-auto">
             <table class="min-w-full border-collapse text-sm text-left text-gray-600">
                 <thead class="text-gray-700 bg-gray-100 font-semibold">
                     <tr>
+                        <th class="px-4 py-3">No</th>
                         <th class="px-4 py-3">Nama Barang</th>
                         <th class="px-4 py-3">Asal Unit</th>
                         <th class="px-4 py-3">Tujuan Unit</th>
                         <th class="px-4 py-3">Status Konfirmasi Unit Asal</th>
                         <th class="px-4 py-3">Status Konfirmasi Tujuan Unit</th>
+                        <th class="px-4 py-3">Tanggal Dibuat</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @foreach ($mutationItemRequests as $data)
                         <tr class="hover:bg-gray-50 transition">
+                            <td class="px-4 py-3 text-center">{{ $loop->iteration }}</td>
                             <td class="px-4 py-3 font-medium text-gray-800">{{ $data->item->name }}</td>
                             <td class="px-4 py-3">{{ $data->fromUser->name }}</td>
                             <td class="px-4 py-3">{{ $data->toUser->name }}</td>
@@ -58,7 +179,8 @@
                                 @if ($data->recipient_confirmed)
                                     <span class="px-2 py-1 rounded text-white bg-green-600">Sudah</span>
                                 @else
-                                    <form method="POST" action="{{ route('mutation-item-requests.confirm', $data->id) }}"
+                                    <form method="POST"
+                                        action="{{ route('mutation-item-requests.confirm', $data->id) }}"
                                         class="inline-block">
                                         @csrf
                                         <input type="hidden" name="target" value="recipient">
@@ -68,6 +190,7 @@
                                     </form>
                                 @endif
                             </td>
+                            <td class="px-4 py-3">{{ $data->created_at ? $data->created_at->format('Y-m-d') : '—' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -105,7 +228,8 @@
                             {{ $page }}
                         </span>
                     @else
-                        <a href="{{ $url }}" class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">
+                        <a href="{{ $url }}"
+                            class="px-2 sm:px-3 py-1 rounded-lg text-gray-600 hover:bg-gray-100">
                             {{ $page }}
                         </a>
                     @endif

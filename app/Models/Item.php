@@ -18,7 +18,6 @@ class Item extends Model
         'id',
         'user_id',
         'type_id',
-        'maintenance_unit_id',
         'code',
         'order_number',
         'name',
@@ -39,10 +38,6 @@ class Item extends Model
         return $this->belongsTo(Type::class);
     }
 
-    public function maintenanceUnit()
-    {
-        return $this->belongsTo(User::class, 'maintenance_unit_id');
-    }
 
     public function mutationItemRequests()
     {

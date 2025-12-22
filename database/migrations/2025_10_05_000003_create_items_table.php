@@ -12,7 +12,6 @@ return new class extends Migration
             $table->string('id')->primary();
             $table->foreignId('user_id')->constrained('users')->noActionOnDelete();
             $table->foreignId('type_id')->constrained('types')->noActionOnDelete();
-            $table->foreignId('maintenance_unit_id')->constrained('users')->noActionOnDelete();
             $table->string('code');
             $table->integer('order_number');
             $table->string('name');

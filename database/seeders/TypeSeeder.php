@@ -10,6 +10,18 @@ class TypeSeeder extends Seeder
 {
     public function run(): void
     {
-        Type::factory(10)->create();
+        $names = [
+            'Peralatan Laboratorium',
+            'Perabotan Rumah Sakit',
+            'Peralatan Pencitraan',
+            'Peralatan TI',
+            'Peralatan Jaringan',
+            'Peralatan Kantor',
+            'Perangkat Medis',
+        ];
+
+        foreach ($names as $name) {
+            Type::firstOrCreate(['name' => $name]);
+        }
     }
 }

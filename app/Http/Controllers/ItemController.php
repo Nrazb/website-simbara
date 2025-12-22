@@ -39,6 +39,9 @@ class ItemController extends Controller
             ->orderBy('name')
             ->get();
         $years = Item::selectRaw('acquisition_year as year')
+            ->when(Auth::user()->role !== 'ADMIN', function ($q) {
+                $q->where('user_id', Auth::id());
+            })
             ->distinct()
             ->orderBy('year', 'desc')
             ->get();
@@ -47,12 +50,13 @@ class ItemController extends Controller
             'year'    => $request->input('year'),
         ];
         $items = $this->itemRepository->all($search, $perPage, $filters);
-        return view('items.index', compact('items', 'types', 'users', 'years'));
+        $unitsSelect = User::where('role', 'UNIT')->orderBy('name')->get();
+        $maintenanceUnits = User::where('role', 'MAINTENANCE_UNIT')->orderBy('name')->get();
+        return view('items.index', compact('items', 'types', 'users', 'years', 'unitsSelect', 'maintenanceUnits'));
     }
 
     public function create()
     {
-        $maintenanceUnits = User::where('role', 'MAINTENANCE_UNIT')->get();
         $types = $this->typeRepository->all();
         $itemRequests = ItemRequest::where('qty', '>', 0)->with('type')
             ->when(Auth::user()->role !== 'ADMIN', function ($q) {
@@ -60,7 +64,7 @@ class ItemController extends Controller
             })
             ->orderByDesc('created_at')
             ->get();
-        return view('items.create', compact('types', 'maintenanceUnits', 'itemRequests'));
+        return view('items.create', compact('types', 'itemRequests'));
     }
 
     public function store(StoreItemRequestForm $request, ItemRequest $itemRequest)
@@ -74,7 +78,6 @@ class ItemController extends Controller
                     'order_number' => $i,
                     'user_id' => $validated['user_id'],
                     'type_id' => $validated['type_id'],
-                    'maintenance_unit_id' => $validated['maintenance_unit_id'],
                     'code' => $validated['code'],
                     'name' => $validated['name'],
                     'cost' => $validated['cost'],

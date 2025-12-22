@@ -3,19 +3,19 @@
 @section('title', 'Masukan Barang | SIMBARA')
 
 @section('content')
-@if (session('success'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition
-                class="fixed bottom-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition
+            class="fixed bottom-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
 
-        @if (session('error'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition
-                class="fixed bottom-4 right-4 z-50 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
+    @if (session('error'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition
+            class="fixed bottom-4 right-4 z-50 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
+            <span>{{ session('error') }}</span>
+        </div>
+    @endif
     <div class="flex items-center justify-between mb-4">
         <div>
             <h2 class="font-semibold text-blue-900 text-lg">Masukan Barang</h2>
@@ -72,7 +72,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Kode Barang <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="code" placeholder="Masukan kode barang" value="{{ old('code') }}"
+                    <input type="text" name="code" placeholder="Contoh: BRG-2025-001" value="{{ old('code') }}"
                         class="w-full border rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900 {{ $errors->has('code') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-blue-900' }}"
                         required>
                     @error('code')
@@ -83,7 +83,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Quantity <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="quantity" placeholder="Masukan jumlah barang" min="1"
+                    <input type="number" name="quantity" placeholder="Contoh: 10" min="1"
                         value="{{ old('quantity') }}"
                         class="w-full border rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900 {{ $errors->has('quantity') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-blue-900' }}"
                         required>
@@ -95,8 +95,8 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Nama Barang <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="name" placeholder="Masukan nama barang" value="{{ old('name') }}"
-                        x-bind:value="selectedRequest?.name ?? ''"
+                    <input type="text" name="name" placeholder="Contoh: Laptop Dell Inspiron"
+                        value="{{ old('name') }}" x-bind:value="selectedRequest?.name ?? ''"
                         class="w-full border rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900 {{ $errors->has('name') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-blue-900' }}"
                         required>
                     @error('name')
@@ -124,7 +124,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Nilai BMN <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="cost" placeholder="Masukan harga barang" value="{{ old('cost') }}"
+                    <input type="number" name="cost" placeholder="Contoh: 15000000" value="{{ old('cost') }}"
                         class="w-full border rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900 {{ $errors->has('cost') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-blue-900' }}"
                         required>
                     @error('cost')
@@ -135,7 +135,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                         Tanggal Perolehan <span class="text-red-500">*</span>
                     </label>
-                    <input type="date" name="acquisition_date" placeholder="Masukan tanggal perolehan barang"
+                    <input type="date" name="acquisition_date" placeholder="Pilih tanggal"
                         value="{{ old('acquisition_date') }}"
                         class="w-full border rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900 {{ $errors->has('acquisition_date') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-blue-900' }}"
                         required>
@@ -148,7 +148,7 @@
                         Tahun Perolehan <span class="text-red-500">*</span>
                     </label>
                     <input type="number" step="1" name="acquisition_year" value="{{ old('acquisition_year') }}"
-                        placeholder="Masukan tahun perolehan barang"
+                        placeholder="Contoh: 2025"
                         class="w-full border rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900 {{ $errors->has('acquisition_year') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-blue-900' }}"
                         required>
                     @error('acquisition_year')
@@ -156,31 +156,13 @@
                     @enderror
                 </div>
 
-                <div class="flex flex-col">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Unit pemeliharaan <span class="text-red-500">*</span>
-                    </label>
-                    <select name="maintenance_unit_id"
-                        class="w-full border rounded-lg px-3 py-2 text-sm md:text-base focus:ring-blue-900 focus:border-blue-900 {{ $errors->has('maintenance_unit_id') ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300' }}"
-                        required>
-                        <option value="" disabled selected>Pilih unit pemeliharaan</option>
-                        @foreach ($maintenanceUnits as $units)
-                            <option value="{{ $units->id }}"
-                                {{ old('maintenance_unit_id') == $units->id ? 'selected' : '' }}>{{ $units->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('maintenance_unit_id')
-                        <span class="text-red-600 text-xs mt-1">{{ $message }}</span>
-                    @enderror
-                </div>
+
             </div>
             <div class="flex flex-col md:flex-row justify-end gap-3 border-t pt-4">
                 <button type="button"
                     class="w-full md:w-auto px-6 py-2 rounded-lg border border-blue-900 text-gray-700 hover:bg-gray-200"
                     @click="requestsOpen=true">Pilih dari Usulan</button>
-                <button type="submit"
-                    :disabled="!selectedRequest"
+                <button type="submit" :disabled="!selectedRequest"
                     class="w-full md:w-auto px-6 py-2 rounded-lg bg-blue-900 text-white hover:bg-amber-400">
                     Masukan Barang
                 </button>

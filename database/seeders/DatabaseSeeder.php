@@ -63,6 +63,13 @@ class DatabaseSeeder extends Seeder
                 'role' => 'UNIT',
                 'can_borrow' => true,
             ],
+            [
+                'code' => 'KEPERAWATAN',
+                'name' => 'KP Unit',
+                'password' => Hash::make('password'),
+                'role' => 'UNIT',
+                'can_borrow' => true,
+            ],
         ];
 
         User::insert($users);

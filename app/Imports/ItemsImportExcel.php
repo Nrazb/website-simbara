@@ -25,7 +25,6 @@ class ItemsImportExcel implements ToModel, WithHeadingRow, WithStartRow
             'id' => $row['id'] ?? null,
             'user_id' => $row['user_id'] ?? null,
             'type_id' => $row['type_id'] ?? null,
-            'maintenance_unit_id' => $row['maintenance_unit_id'] ?? null,
             'code' => $row['code'] ?? null,
             'order_number' => $row['order_number'] ?? null,
             'name' => $row['name'] ?? null,
@@ -36,4 +35,3 @@ class ItemsImportExcel implements ToModel, WithHeadingRow, WithStartRow
         ]);
     }
 }
-

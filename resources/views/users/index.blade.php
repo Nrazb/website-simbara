@@ -80,7 +80,7 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach ($users as $data)
                             <tr class="hover:bg-gray-50 transition" data-id="{{ $data->id }}">
-                                <td class="px-4 py-3 font-medium text-center">{{ $data->id }}</td>
+                                <td class="px-4 py-3 font-medium text-center">{{ $loop->iteration }}</td>
                                 <td class="px-4 py-3 font-medium">{{ $data->name }}</td>
                                 <td class="px-4 py-3 font-medium">{{ $data->code }}</td>
                                 <td class="px-4 py-3 font-medium text-center">{{ $data->role }}</td>

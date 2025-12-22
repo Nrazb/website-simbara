@@ -7,9 +7,11 @@
         selectedId: null,
         createOpen: false,
         selectedEditData: null,
-        submitPerPage(value) { const url = new URL(window.location.href);
+        submitPerPage(value) {
+            const url = new URL(window.location.href);
             url.searchParams.set('per_page', value);
-            window.location.href = url.toString(); }
+            window.location.href = url.toString();
+        }
     }">
         @include('components.types.create')
         @include('components.types.edit')
@@ -54,7 +56,7 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach ($types as $data)
                             <tr class="hover:bg-gray-50 transition" data-id="{{ $data->id }}">
-                                <td class="px-4 py-3 font-medium text-center">{{ $data->id }}</td>
+                                <td class="px-4 py-3 font-medium text-center">{{ $loop->iteration }}</td>
                                 <td class="px-4 py-3 font-medium">{{ $data->name }}</td>
                                 <td class="px-4 py-3">{{ $data->created_at }}</td>
                                 <td class="px-4 py-3 text-center">{{ $data?->deleted_at ?? '-' }}</td>

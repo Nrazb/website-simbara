@@ -18,7 +18,9 @@ class ReportsApiController extends Controller
 {
     public function index ()
     {
-        return view('reports.index');
+        return response()->json([
+            'available_reports' => ['remove', 'mutation', 'maintenance', 'request', 'items'],
+        ]);
     }
 
     public function export(Request $request)
@@ -36,7 +38,9 @@ class ReportsApiController extends Controller
             'maintenance' => Excel::download(new MaintenanceItemExport($start, $end), "Laporan Maintenance BMN {$startLabel}-{$endLabel}.xlsx"),
             'request'     => Excel::download(new ItemRequestExport($start, $end), "Laporan Usulan BMN {$startLabel}-{$endLabel}.xlsx"),
             'items'       => Excel::download(new ItemsExport($start, $end), "Laporan Barang Milik Negara {$startLabel}-{$endLabel}.xlsx"),
-            default       => back()->with('error', 'Jenis laporan tidak ditemukan'),
+            default       => response()->json([
+                'message' => 'Jenis laporan tidak ditemukan',
+            ], 400),
         };
     }
 }

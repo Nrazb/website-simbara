@@ -45,14 +45,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/items/{itemRequest:id}', [ItemController::class, 'store'])->name('items.store');
 
     Route::get('/mutation-item-requests', [MutationItemRequestController::class, 'index'])->name('mutation-item-requests.index');
-    Route::get('/mutation-item-requests/create', [MutationItemRequestController::class, 'create'])->name('mutation-item-requests.create');
     Route::post('/mutation-item-requests', [MutationItemRequestController::class, 'store'])->name('mutation-item-requests.store');
     Route::post('/mutation-item-requests/{mutationItemRequest}/confirm', [MutationItemRequestController::class, 'confirm'])->name('mutation-item-requests.confirm');
 
     Route::get('/maintenance-item-requests', [MaintenanceItemRequestController::class, 'index'])->name('maintenance-item-requests.index');
+    Route::post('/maintenance-item-requests', [MaintenanceItemRequestController::class, 'store'])->name('maintenance-item-requests.store');
     Route::post('/maintenance-item-requests/{maintenanceItemRequest}/confirm-unit', [MaintenanceItemRequestController::class, 'confirmUnit'])->name('maintenance-item-requests.confirm-unit');
     Route::post('/maintenance-item-requests/{maintenanceItemRequest}/update-request-status', [MaintenanceItemRequestController::class, 'updateRequestStatus'])->name('maintenance-item-requests.update-request-status');
     Route::post('/maintenance-item-requests/{maintenanceItemRequest}/update-item-status', [MaintenanceItemRequestController::class, 'updateItemStatus'])->name('maintenance-item-requests.update-item-status');
+    Route::post('/maintenance-item-requests/{maintenanceItemRequest}/update-information', [MaintenanceItemRequestController::class, 'updateInformation'])->name('maintenance-item-requests.update-information');
 
     Route::get('/remove-item-requests', [RemoveItemRequestController::class, 'index'])->name('remove-item-requests.index');
     Route::post('/remove-item-requests', [RemoveItemRequestController::class, 'store'])->name('remove-item-requests.store');

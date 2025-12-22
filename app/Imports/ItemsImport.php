@@ -19,7 +19,6 @@ class ItemsImport implements ToModel, WithHeadingRow
             'id' => $row['id'],
             'user_id' => $row['user_id'],
             'type_id' => $row['type_id'],
-            'maintenance_unit_id' => $row['maintenance_unit_id'],
             'code' => $row['code'],
             'order_number' => $row['order_number'],
             'name' => $row['name'],

@@ -12,10 +12,11 @@ class MaintenanceItemRequest extends Model
 
     protected $fillable = [
         'user_id',
+        'maintenance_user_id',
         'item_id',
         'item_status',
         'information',
-        'request_status',
+        'maintenance_status',
         'unit_confirmed',
     ];
 

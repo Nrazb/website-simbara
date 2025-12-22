@@ -11,11 +11,21 @@ return new class extends Migration
         Schema::create('maintenance_item_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->noActionOnDelete();
+            $table->foreignId('maintenance_user_id')->constrained('users')->noActionOnDelete();
             $table->string('item_id');
             $table->foreign('item_id')->references('id')->on('items')->noActionOnDelete();
-            $table->enum('item_status', ['GOOD', 'DAMAGED', 'REPAIRED'])->nullable();
+            $table->enum('item_status', ['PENDING', 'GOOD', 'DAMAGED', 'REPAIRED'])->default('PENDING');
             $table->string('information')->nullable();
-            $table->enum('request_status', ['PENDING', 'PROCESS', 'COMPLETED', 'REJECTED', 'REMOVED']);
+            $table->enum('maintenance_status', [
+                'PENDING',
+                'APPROVED',
+                'BEING_SENT',
+                'PROCESSING',
+                'COMPLETED',
+                'REJECTED',
+                'REMOVED',
+                'BEING_SENT_BACK',
+            ])->default('PENDING');
             $table->boolean('unit_confirmed')->default(false);
             $table->timestamps();
             $table->softDeletes();

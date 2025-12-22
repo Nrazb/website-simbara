@@ -9,6 +9,9 @@ body {
 }
 
 @layer base {
+  * {
+    @apply resize-none outline-none;
+  }
   button:disabled {
     @apply bg-gray-400 cursor-not-allowed;
   }

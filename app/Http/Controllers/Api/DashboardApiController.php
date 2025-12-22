@@ -9,6 +9,8 @@ use App\Models\MutationItemRequest;
 use App\Models\RemoveItemRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ItemRequestResource;
+use App\Http\Resources\ItemResource;
 
 class DashboardApiController extends Controller
 {
@@ -32,7 +34,16 @@ class DashboardApiController extends Controller
         $totalMutation = MutationItemRequest::count();
         $totalMaintenance = MaintenanceItemRequest::count();
         $totalRemove = RemoveItemRequest::count();
-        return view('dashboard', compact('item', 'itemRequest', 'totalItems', 'totalRequest', 'totalMutation', 'totalMaintenance', 'totalRemove'));
+        return response()->json([
+            'items' => ItemResource::collection($item),
+            'item_requests' => ItemRequestResource::collection($itemRequest),
+            'summary' => [
+                'total_items' => $totalItems,
+                'total_requests' => $totalRequest,
+                'total_mutations' => $totalMutation,
+                'total_maintenances' => $totalMaintenance,
+                'total_removes' => $totalRemove,
+            ],
+        ]);
     }
 }
-

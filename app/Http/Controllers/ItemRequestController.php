@@ -46,6 +46,19 @@ class ItemRequestController extends Controller
 
         if (Auth::user()->role !== 'ADMIN') {
             $baseQuery->where('user_id', Auth::user()->id);
+            $baseQuery->select([
+                'id',
+                'user_id',
+                'type_id',
+                'name',
+                'detail',
+                'qty',
+                'reason',
+                'sent_at',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ]);
         }
 
         if ($request->filled('status')) {
@@ -53,6 +66,8 @@ class ItemRequestController extends Controller
                 $baseQuery->whereNull('sent_at');
             } elseif ($request->status === 'sent') {
                 $baseQuery->whereNotNull('sent_at');
+            } elseif ($request->status === 'deleted') {
+                $baseQuery->onlyTrashed();
             }
         }
 

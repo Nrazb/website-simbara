@@ -18,7 +18,6 @@ class UpdateItemRequestForm extends FormRequest
             'id' => 'sometimes|required|string|unique:items,id,' . $itemId,
             'user_id' => 'sometimes|required|exists:users,id',
             'type_id' => 'sometimes|required|exists:types,id',
-            'maintenance_unit_id' => 'sometimes|required|exists:users,id',
             'code' => 'sometimes|required|string|unique:items,code,' . $itemId . ',id',
             'order_number' => 'sometimes|required|integer|unique:items,order_number,' . $itemId . ',id',
             'name' => 'sometimes|required|string|max:255',

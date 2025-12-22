@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('detail');
             $table->integer('qty');
             $table->string('reason');
+            $table->timestamp('sent_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

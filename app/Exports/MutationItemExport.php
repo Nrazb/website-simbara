@@ -32,7 +32,7 @@ class MutationItemExport implements FromCollection, WithHeadings, WithEvents, Wi
             ->get()
             ->map(fn($row) => [
                 'ID' => $row->id,
-                'Unit Pemeliharaan'   => $row->item->maintenanceUnit->name ?? '-',
+                'Unit'   => $row->item->user->name ?? '-',
                 'Nama Item' => $row->item->name ?? '-',
                 'Dari User' => $row->fromUser->name ?? '-',
                 'Ke User' => $row->toUser->name ?? '-',
@@ -46,7 +46,7 @@ class MutationItemExport implements FromCollection, WithHeadings, WithEvents, Wi
 
     public function headings(): array
     {
-        return ['Id', 'Unit Pemeliharaan', 'Nama Item', 'Dari User', 'Ke User', 'Konfirmasi Unit', 'Konfirmasi Unit Penerima', 'Tanggal Mutasi Dibuat', 'Tanggal Mutasi Diperbarui', 'Tanggal Mutasi Dihapus'];
+        return ['Id', 'Unit', 'Nama Item', 'Dari User', 'Ke User', 'Konfirmasi Unit', 'Konfirmasi Unit Penerima', 'Tanggal Mutasi Dibuat', 'Tanggal Mutasi Diperbarui', 'Tanggal Mutasi Dihapus'];
     }
 
     public function startCell(): string

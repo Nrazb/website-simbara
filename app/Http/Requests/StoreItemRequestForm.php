@@ -28,7 +28,6 @@ class StoreItemRequestForm extends FormRequest
             'id' => 'sometimes|string|unique:items,id',
             'user_id' => 'required|exists:users,id',
             'type_id' => 'required|exists:types,id',
-            'maintenance_unit_id' => 'required|exists:users,id',
             'code' => 'required|string',
             'quantity' => 'required|integer|min:1' . ($maxQty !== null ? '|max:' . $maxQty : ''),
             'name' => 'required|string|max:255',

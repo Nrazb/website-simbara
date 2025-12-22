@@ -49,17 +49,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Item::class, 'user_id');
     }
-    public function maintenanceItems()
-    {
-        return $this->hasMany(Item::class, 'maintenance_unit_id');
-    }
     public function itemRequests()
     {
         return $this->hasMany(ItemRequest::class);
-    }
-    public function mutationItemRequestsAsMaintenanceUnit()
-    {
-        return $this->hasMany(MutationItemRequest::class, 'maintenance_unit_id');
     }
     public function mutationItemRequestsFrom()
     {

@@ -14,7 +14,7 @@ class MaintenanceItemRequestResource extends JsonResource
             'item_id' => $this->item_id,
             'item_status' => $this->item_status,
             'information' => $this->information,
-            'request_status' => $this->request_status,
+            'maintenance_status' => $this->maintenance_status,
             'unit_confirmed' => $this->unit_confirmed,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -27,7 +27,6 @@ class ItemFactory extends Factory
             'id' => $code . "-" . $order_number,
             'user_id' => mt_rand(1, 6),
             'type_id' => $type->id,
-            'maintenance_unit_id' => 3,
             'code' => $code,
             'order_number' => $order_number,
             'name' => $this->faker->word,

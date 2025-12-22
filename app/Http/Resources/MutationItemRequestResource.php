@@ -10,7 +10,6 @@ class MutationItemRequestResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'maintenance_unit_id' => $this->maintenance_unit_id,
             'item_id' => $this->item_id,
             'from_user_id' => $this->from_user_id,
             'to_user_id' => $this->to_user_id,
@@ -18,7 +17,6 @@ class MutationItemRequestResource extends JsonResource
             'recipient_confirmed' => $this->recipient_confirmed,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'maintenance_unit' => new UserResource($this->whenLoaded('maintenanceUnit')),
             'item' => new ItemResource($this->whenLoaded('item')),
             'from_user' => new UserResource($this->whenLoaded('fromUser')),
             'to_user' => new UserResource($this->whenLoaded('toUser')),

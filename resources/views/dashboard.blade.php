@@ -65,6 +65,7 @@
                 <table class="w-full table-fixed text-center border border-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
+                            <th class="p-2 font-medium border-b">No</th>
                             <th class="p-2 font-medium border-b">Nama Barang</th>
                             <th class="p-2 font-medium border-b">Spesifikasi</th>
                             <th class="p-2 font-medium border-b">Jenis</th>
@@ -75,6 +76,7 @@
                     <tbody>
                         @forelse ($itemRequest as $itemRequest)
                             <tr class="hover:bg-amber-50">
+                                <td class="p-2 font-light border-b">{{ $loop->iteration }}</td>
                                 <td class="p-2 font-light border-b">{{ $itemRequest->name }}</td>
                                 <td class="p-2 font-light border-b">{{ $itemRequest->detail }}</td>
                                 <td class="p-2 font-light border-b">{{ $itemRequest->type->name }}</td>
@@ -83,7 +85,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="p-3 text-gray-500 font-light italic">
+                                <td colspan="6" class="p-3 text-gray-500 font-light italic">
                                     Tidak ada data saat ini
                                 </td>
                             </tr>
@@ -103,6 +105,7 @@
                 <table class="w-full table-fixed text-center border border-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
+                            <th class="p-2 font-medium border-b">No</th>
                             <th class="p-2 font-medium border-b">Kode Barang</th>
                             <th class="p-2 font-medium border-b">NUP</th>
                             <th class="p-2 font-medium border-b">Nama Barang</th>
@@ -111,13 +114,14 @@
                     <tbody>
                         @forelse ($item as $item)
                             <tr class="hover:bg-amber-50">
+                                <td class="p-2 font-light border-b">{{ $loop->iteration }}</td>
                                 <td class="p-2 font-light border-b">{{ $item->code }}</td>
                                 <td class="p-2 font-light border-b">{{ $item->order_number }}</td>
                                 <td class="p-2 font-light border-b">{{ $item->name }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="p-3 text-gray-500 font-light italic">
+                                <td colspan="4" class="p-3 text-gray-500 font-light italic">
                                     Tidak ada data saat ini
                                 </td>
                             </tr>

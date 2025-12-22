@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\User;
-use App\Http\Resources\UserResource;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepositoryInterface;
+use App\Http\Resources\UserResource;
 
 class UserApiController extends Controller
 {
@@ -20,40 +18,60 @@ class UserApiController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        return UserResource::collection($this->userRepository->all());
-    }
-
-    public function show($id)
-    {
-        $user = $this->userRepository->find($id);
-        return new UserResource($user);
+        $users = $this->userRepository->all();
+        return UserResource::collection($users);
     }
 
     public function store(StoreUserRequest $request)
     {
         $validated = $request->validated();
-        $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
-        $user = $this->userRepository->create($validated);
-        return new UserResource($user);
+        try {
+            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+            $user = $this->userRepository->create($validated);
+            return (new UserResource($user))
+                ->additional(['message' => 'Berhasil menambahkan pengguna baru.'])
+                ->response()
+                ->setStatusCode(201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal membuat pengguna: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(UpdateUserRequest $request, $id)
     {
         $validated = $request->validated();
-        if (!empty($validated['password'])) {
-            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
+        try {
+            if (!empty($validated['password'])) {
+                $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+            } else {
+                unset($validated['password']);
+            }
+            $user = $this->userRepository->update($id, $validated);
+            return (new UserResource($user))
+                ->additional(['message' => 'Data berhasil diperbarui.'])
+                ->response();
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal memperbarui: ' . $e->getMessage(),
+            ], 500);
         }
-        $user = $this->userRepository->update($id, $validated);
-        return new UserResource($user);
     }
 
     public function destroy($id)
     {
-        $this->userRepository->delete($id);
-        return response()->json(['message' => 'User deleted successfully.']);
+        try {
+            $this->userRepository->delete($id);
+            return response()->json([
+                'message' => 'Berhasil menghapus pengguna.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal menghapus pengguna: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

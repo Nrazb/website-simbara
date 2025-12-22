@@ -12,7 +12,6 @@ class ItemResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'type_id' => $this->type_id,
-            'maintenance_unit_id' => $this->maintenance_unit_id,
             'code' => $this->code,
             'order_number' => $this->order_number,
             'name' => $this->name,
@@ -23,7 +22,6 @@ class ItemResource extends JsonResource
             'updated_at' => $this->updated_at,
             'user' => new UserResource($this->whenLoaded('user')),
             'type' => new TypeResource($this->whenLoaded('type')),
-            'maintenance_unit' => new UserResource($this->whenLoaded('maintenanceUnit')),
         ];
     }
 }

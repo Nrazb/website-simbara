@@ -28,7 +28,11 @@ class MutationItemRequestController extends Controller
     {
         $perPage = $request->input('per_page', 5);
         $mutationItemRequests = $this->mutationItemRequestRepository->all($perPage);
-        return view('mutation_item_requests.index', compact('mutationItemRequests'));
+        $users = null;
+        if (\Illuminate\Support\Facades\Auth::user()?->role === 'ADMIN') {
+            $users = \App\Models\User::where('role', 'UNIT')->orderBy('name')->get();
+        }
+        return view('mutation_item_requests.index', compact('mutationItemRequests', 'users'));
     }
 
     public function create()
@@ -43,7 +47,7 @@ class MutationItemRequestController extends Controller
         $validated = $request->validated();
         try {
             $this->mutationItemRequestRepository->create($validated);
-            return redirect()->route('mutation-item-requests.index')->with('success', 'Mutation item request created successfully.');
+            return redirect()->route('items.index')->with('success', 'Permintaan mutasi berhasil dibuat.');
         } catch (QueryException $e) {
             $code = $e->getCode();
             $msg = $code == 23000 ? 'Data duplikat atau referensi tidak valid.' : 'Kesalahan database. Coba lagi.';
