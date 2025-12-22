@@ -17,30 +17,6 @@ class AuthApiController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    public function showLoginForm()
-    {
-        return view('auth.login');
-    }
-
-    public function login(LoginRequest $request)
-    {
-        $credentials = $request->only('code', 'password');
-        if ($this->userRepository->attemptLogin($credentials, $request->filled('remember'))) {
-            return redirect()->route("dashboard");
-        }
-        return back()->withErrors(['code' => 'Code or Password is incorrect'])->withInput($request->only('code'));
-    }
-
-    public function logout(Request $request)
-    {
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('login')->with('success', 'You have been logged out.');
-    }
-
     public function apiLogin(LoginRequest $request)
     {
         $credentials = $request->only('code', 'password');
@@ -55,4 +31,3 @@ class AuthApiController extends Controller
         return response()->json(['error' => 'Code or Password is incorrect'], 401);
     }
 }
-

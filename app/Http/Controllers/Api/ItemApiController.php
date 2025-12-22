@@ -127,39 +127,6 @@ class ItemApiController extends Controller
         }
     }
 
-    public function show($id)
-    {
-        $item = $this->itemRepository->find($id);
-        return view('items.show', compact('item'));
-    }
-
-    public function edit($id)
-    {
-        $item = $this->itemRepository->find($id);
-        return view('items.edit', compact('item'));
-    }
-
-    public function update(UpdateItemRequestForm $request, $id)
-    {
-        $validated = $request->validated();
-        try {
-            $this->itemRepository->update($id, $validated);
-            return redirect()->route('items.index')->with('success', 'Berhasil memperbarui barang.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui barang: ' . $e->getMessage());
-        }
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $this->itemRepository->delete($id);
-            return redirect()->route('items.index')->with('success', 'Berhasil menghapus barang.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
-        }
-    }
-
     public function import(Request $request)
     {
         try {

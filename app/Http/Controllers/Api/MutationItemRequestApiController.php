@@ -39,13 +39,6 @@ class MutationItemRequestApiController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        $items = $this->itemRepository->all();
-        $users = $this->userRepository->all();
-        return view('mutation_item_requests.create', compact('items', 'users'));
-    }
-
     public function store(StoreMutationItemRequest $request)
     {
         $validated = $request->validated();
