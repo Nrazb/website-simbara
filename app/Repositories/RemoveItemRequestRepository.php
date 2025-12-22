@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\RemoveItemRequest;
+use Illuminate\Support\Facades\Auth;
 
 class RemoveItemRequestRepository implements RemoveItemRequestRepositoryInterface
 {
@@ -11,8 +12,12 @@ class RemoveItemRequestRepository implements RemoveItemRequestRepositoryInterfac
         $perPage = request()->input('per_page', 5);
         $query = RemoveItemRequest::with(['user', 'item']);
 
+        if (Auth::user() && Auth::user()->role !== 'ADMIN') {
+            $query->where('user_id', Auth::id());
+        }
+
         $userId = request()->input('user_id');
-        if (!empty($userId)) {
+        if (!empty($userId) && Auth::user() && Auth::user()->role === 'ADMIN') {
             $query->where('user_id', $userId);
         }
 

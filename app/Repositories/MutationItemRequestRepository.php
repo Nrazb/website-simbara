@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Models\Item;
 use App\Models\MutationItemRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MutationItemRequestRepository implements MutationItemRequestRepositoryInterface
 {
@@ -100,8 +102,22 @@ class MutationItemRequestRepository implements MutationItemRequestRepositoryInte
         if (!in_array($field, ['unit_confirmed', 'recipient_confirmed'])) {
             throw new \InvalidArgumentException('Invalid confirmation field');
         }
-        $mutation = MutationItemRequest::findOrFail($id);
-        $mutation->update([$field => true]);
-        return $mutation;
+
+        return DB::transaction(function () use ($id, $field) {
+            $mutation = MutationItemRequest::query()->lockForUpdate()->findOrFail($id);
+            if (!$mutation->{$field}) {
+                $mutation->update([$field => true]);
+                $mutation->refresh();
+            }
+
+            if ($mutation->unit_confirmed && $mutation->recipient_confirmed) {
+                $item = Item::query()->lockForUpdate()->findOrFail($mutation->item_id);
+                if ($item->user_id !== $mutation->to_user_id) {
+                    $item->update(['user_id' => $mutation->to_user_id]);
+                }
+            }
+
+            return $mutation;
+        });
     }
 }

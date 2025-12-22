@@ -35,7 +35,7 @@
                         </div>
                     </div>
 
-                    <button @click="createOpen = true"
+                    <button type="button" @click="createOpen = true"
                         class="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:border border-blue-900 hover:bg-white text-white hover:text-blue-900
                        rounded-lg text-sm font-medium shadow-sm transition">
                         <i class="fa-solid fa-plus"></i>

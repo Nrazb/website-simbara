@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\MaintenanceItemRequest;
+use Illuminate\Support\Facades\Auth;
 
 class MaintenanceItemRequestRepository implements MaintenanceItemRequestRepositoryInterface
 {
@@ -10,6 +11,14 @@ class MaintenanceItemRequestRepository implements MaintenanceItemRequestReposito
     {
         $perPage = request()->input('per_page', 5);
         $query = MaintenanceItemRequest::with(['user', 'item']);
+
+        if (Auth::user()) {
+            if (Auth::user()->role === 'MAINTENANCE_UNIT') {
+                $query->where('maintenance_user_id', Auth::id());
+            } elseif (Auth::user()->role !== 'ADMIN') {
+                $query->where('user_id', Auth::id());
+            }
+        }
 
         $search = trim((string) request()->input('search', ''));
         if ($search !== '') {

@@ -22,18 +22,20 @@
                         class="fa-solid fa-magnifying-glass absolute left-3 top-[2.35rem] -translate-y-1/2 text-gray-400"></i>
                 </div>
                 <div class="flex gap-2 items-center flex-wrap">
-                    <div class="relative min-w-[180px]">
-                        <label class="block text-gray-500 text-sm font-medium mb-1">Unit</label>
-                        <select name="user_id" onchange="this.form.submit()"
-                            class="border rounded-lg px-3 py-2 pr-8 bg-white shadow-sm focus:ring focus:ring-blue-300">
-                            <option value="">Semua Unit</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
-                                    {{ $user->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    @if (auth()->user()->role === 'ADMIN')
+                        <div class="relative min-w-[180px]">
+                            <label class="block text-gray-500 text-sm font-medium mb-1">Unit</label>
+                            <select name="user_id" onchange="this.form.submit()"
+                                class="border rounded-lg px-3 py-2 pr-8 bg-white shadow-sm focus:ring focus:ring-blue-300">
+                                <option value="">Semua Unit</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                     <div class="relative min-w-[180px]">
                         <label class="block text-gray-500 text-sm font-medium mb-1">Status Penghapusan</label>
                         <select name="status" onchange="this.form.submit()"
