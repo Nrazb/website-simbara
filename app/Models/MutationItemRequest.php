@@ -20,16 +20,22 @@ class MutationItemRequest extends Model
 
     public function item()
     {
-        return $this->belongsTo(Item::class, 'item_id');
+        return $this->belongsTo(Item::class, 'item_id')->withDefault([
+            'name' => '-',
+        ]);
     }
 
     public function fromUser()
     {
-        return $this->belongsTo(User::class, 'from_user_id');
+        return $this->belongsTo(User::class, 'from_user_id')->withDefault([
+            'name' => '-',
+        ]);
     }
 
     public function toUser()
     {
-        return $this->belongsTo(User::class, 'to_user_id');
+        return $this->belongsTo(User::class, 'to_user_id')->withDefault([
+            'name' => '-',
+        ]);
     }
 }

@@ -30,12 +30,16 @@ class Item extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withDefault([
+            'name' => '-',
+        ]);
     }
 
     public function type()
     {
-        return $this->belongsTo(Type::class);
+        return $this->belongsTo(Type::class)->withDefault([
+            'name' => '-',
+        ]);
     }
 
 

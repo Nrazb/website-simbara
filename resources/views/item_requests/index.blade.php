@@ -69,7 +69,8 @@
                             <div class="relative min-w-[150px]">
                                 <i
                                     class="fa-solid fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                                <select name="year" x-ref="year" @change="$refs.start && ($refs.start.value=''); $refs.end && ($refs.end.value=''); $refs.filterForm.submit()"
+                                <select name="year" x-ref="year"
+                                    @change="$refs.start && ($refs.start.value=''); $refs.end && ($refs.end.value=''); $refs.filterForm.submit()"
                                     class="border rounded-lg pl-9 pr-8 py-2 bg-white shadow-sm
                                 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition w-full text-sm">
                                     <option value="">Semua Tahun</option>
@@ -103,12 +104,14 @@
                             <label class="text-gray-500 text-sm font-medium">Rentang Tanggal</label>
                             <div class="flex items-center gap-2">
                                 <div class="relative">
-                                    <input type="date" name="start" x-ref="start" value="{{ request('start') }}" @change="$refs.year && ($refs.year.value=''); $refs.filterForm.submit()"
+                                    <input type="date" name="start" x-ref="start" value="{{ request('start') }}"
+                                        @change="$refs.year && ($refs.year.value=''); $refs.filterForm.submit()"
                                         class="border rounded-lg px-3 py-2 bg-white shadow-sm text-sm focus:ring-2 focus:ring-blue-400" />
                                 </div>
                                 <span class="text-gray-500">-</span>
                                 <div class="relative">
-                                    <input type="date" name="end" x-ref="end" value="{{ request('end') }}" @change="$refs.year && ($refs.year.value=''); $refs.filterForm.submit()"
+                                    <input type="date" name="end" x-ref="end" value="{{ request('end') }}"
+                                        @change="$refs.year && ($refs.year.value=''); $refs.filterForm.submit()"
                                         class="border rounded-lg px-3 py-2 bg-white shadow-sm text-sm focus:ring-2 focus:ring-blue-400" />
                                 </div>
                             </div>
@@ -297,7 +300,7 @@
                         </div>
                     @empty
                         <div class="mt-2 text-sm space-y-1 italic text-center">
-                            <p><span>Tidak ada data saat ini</span></p>
+                            <p><span class="text-gray-500 font-light">Tidak ada data saat ini</span></p>
                         </div>
                     @endforelse
                 </div>
@@ -364,6 +367,10 @@
                 <span>{{ session('error') }}</span>
             </div>
         @endif
+
+        @include('components.item_requests.create')
+        @include('components.item_requests.edit')
+        @include('components.item_requests.delete')
     </div>
 
     <!-- MODAL SHOW (NO ALPINE) -->
@@ -426,9 +433,6 @@
                 </div>
             </form>
         </div>
-        @include('components.item_requests.create')
-        @include('components.item_requests.edit')
-        @include('components.item_requests.delete')
     </div>
 
     <script>

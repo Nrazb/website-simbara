@@ -22,11 +22,15 @@ class MaintenanceItemRequest extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withDefault([
+            'name' => '-',
+        ]);
     }
 
     public function item()
     {
-        return $this->belongsTo(Item::class, 'item_id');
+        return $this->belongsTo(Item::class, 'item_id')->withDefault([
+            'name' => '-',
+        ]);
     }
 }
