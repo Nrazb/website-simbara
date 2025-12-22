@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepositoryInterface;
@@ -18,7 +19,7 @@ class UserApiController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    public function index(\Illuminate\Http\Request $request)
+    public function index(Request $request)
     {
         $users = $this->userRepository->all();
         return UserResource::collection($users);
@@ -28,7 +29,7 @@ class UserApiController extends Controller
     {
         $validated = $request->validated();
         try {
-            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+            $validated['password'] = Hash::make($validated['password']);
             $user = $this->userRepository->create($validated);
             return (new UserResource($user))
                 ->additional(['message' => 'Berhasil menambahkan pengguna baru.'])
@@ -46,7 +47,7 @@ class UserApiController extends Controller
         $validated = $request->validated();
         try {
             if (!empty($validated['password'])) {
-                $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+                $validated['password'] = Hash::make($validated['password']);
             } else {
                 unset($validated['password']);
             }

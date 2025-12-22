@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMaintenanceItemRequest;
+use App\Models\User;
 use App\Repositories\MaintenanceItemRequestRepositoryInterface;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\QueryException;
 use App\Models\MaintenanceItemRequest;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class MaintenanceItemRequestController extends Controller
 {
@@ -22,22 +25,22 @@ class MaintenanceItemRequestController extends Controller
     public function index(Request $request)
     {
         $maintenanceItemRequests = $this->maintenanceItemRequestRepository->all();
-        $maintenanceUnits = \App\Models\User::where('role', 'MAINTENANCE_UNIT')->orderBy('name')->get();
+        $maintenanceUnits = User::where('role', 'MAINTENANCE_UNIT')->orderBy('name')->get();
         return view('maintenance_item_requests.index', compact('maintenanceItemRequests', 'maintenanceUnits'));
     }
 
-    public function store(\App\Http\Requests\StoreMaintenanceItemRequest $request)
+    public function store(StoreMaintenanceItemRequest $request)
     {
         $validated = $request->validated();
         try {
             $this->maintenanceItemRequestRepository->create($validated);
             return redirect()->route('items.index')->with('success', 'Permintaan pemeliharaan dibuat.');
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             $code = $e->getCode();
             Log::error("Database error: $code");
             $msg = $code == 23000 ? 'Data duplikat atau referensi tidak valid.' : 'Kesalahan database. Coba lagi.';
             return redirect()->back()->withInput()->with('error', $msg);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal membuat permintaan pemeliharaan.');
         }
     }
@@ -57,7 +60,7 @@ class MaintenanceItemRequestController extends Controller
             return back()->with('success', 'Konfirmasi unit berhasil.');
         } catch (QueryException $e) {
             return back()->with('error', 'Kesalahan database saat memproses tindakan.');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return back()->with('error', 'Gagal memproses tindakan.');
         }
     }
@@ -100,7 +103,7 @@ class MaintenanceItemRequestController extends Controller
             return back()->with('success', 'Status pemeliharaan diperbarui.');
         } catch (QueryException $e) {
             return back()->with('error', 'Kesalahan database saat memproses tindakan.');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return back()->with('error', 'Gagal memproses tindakan.');
         }
     }
@@ -124,7 +127,7 @@ class MaintenanceItemRequestController extends Controller
             return back()->with('success', 'Status barang diperbarui.');
         } catch (QueryException $e) {
             return back()->with('error', 'Kesalahan database saat memproses tindakan.');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return back()->with('error', 'Gagal memproses tindakan.');
         }
     }
@@ -144,7 +147,7 @@ class MaintenanceItemRequestController extends Controller
             return back()->with('success', 'Informasi pemeliharaan diperbarui.');
         } catch (QueryException $e) {
             return back()->with('error', 'Kesalahan database saat memproses tindakan.');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return back()->with('error', 'Gagal memproses tindakan.');
         }
     }

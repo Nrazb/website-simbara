@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ItemsExport;
+use App\Http\Requests\ImportItemsRequest;
 use App\Repositories\ItemRepositoryInterface;
 use App\Http\Requests\StoreItemRequestForm;
 use App\Http\Requests\UpdateItemRequestForm;
@@ -12,9 +13,12 @@ use App\Models\Item;
 use App\Models\ItemRequest;
 use App\Models\User;
 use App\Repositories\TypeRepositoryInterface;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
+use PhpOffice\PhpSpreadsheet\Reader\Exception as PhpSpreadsheetReaderException;
 
 class ItemController extends Controller
 {
@@ -95,7 +99,7 @@ class ItemController extends Controller
             $itemRequest->decrement('qty', (int) $validated['quantity']);
 
             return redirect()->route('items.index')->with('success', 'Berhasil menambahkan barang.');
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             return $e;
             if ($e->getCode() == 23000) {
                 $errorMsg = 'Kode barang sudah digunakan. Silakan gunakan kode lain.';
@@ -141,13 +145,9 @@ class ItemController extends Controller
         }
     }
 
-    public function import(Request $request)
+    public function import(ImportItemsRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'file' => 'required|mimes:xlsx,csv,xls'
-            ]);
-
             $ext = strtolower($request->file('file')->getClientOriginalExtension());
 
             if (in_array($ext, ['xlsx', 'xls'])) {
@@ -157,18 +157,16 @@ class ItemController extends Controller
             }
 
             return redirect()->route('items.index')->with('success', 'Import berhasil!');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput()->with('error', 'File yang diunggah tidak valid. Pastikan file berekstensi .xlsx, .xls, atau .csv.');
-        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+        } catch (PhpSpreadsheetReaderException $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal membaca file. Pastikan file Excel tidak rusak atau terproteksi.');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = $e->failures();
             $messages = [];
             foreach ($failures as $failure) {
                 $messages[] = 'Baris ' . $failure->row() . ' pada kolom ' . implode(', ', $failure->attribute()) . ': ' . implode(', ', $failure->errors());
             }
             return redirect()->back()->withInput()->with('error', 'Terdapat kesalahan pada data impor: <br>' . implode('<br>', $messages));
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data ke database. Silakan periksa kembali isi file dan pastikan tidak ada duplikasi kode barang.');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat mengimpor: ' . $e->getMessage());

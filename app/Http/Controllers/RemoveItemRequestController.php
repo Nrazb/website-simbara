@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreRemoveItemUnitRequest;
 use App\Repositories\RemoveItemRequestRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,6 +10,7 @@ use Illuminate\Database\QueryException;
 use App\Models\User;
 use App\Models\Item;
 use App\Models\RemoveItemRequest;
+use Throwable;
 
 class RemoveItemRequestController extends Controller
 {
@@ -21,11 +23,11 @@ class RemoveItemRequestController extends Controller
 
     public function index(Request $request)
     {
-        $users = User::whereIn('id', function($query) {
+        $users = User::whereIn('id', function ($query) {
             $query->select('user_id')->from('remove_item_requests');
         })
-        ->orderBy('name')
-        ->get();
+            ->orderBy('name')
+            ->get();
 
         $removeItemRequests = $this->removeItemRequestRepository->all();
 
@@ -37,11 +39,9 @@ class RemoveItemRequestController extends Controller
         return view('remove_item_requests.index', compact('removeItemRequests', 'users', 'items'));
     }
 
-    public function store(Request $request)
+    public function store(StoreRemoveItemUnitRequest $request)
     {
-        $validated = $request->validate([
-            'item_id' => 'required|exists:items,id',
-        ]);
+        $validated = $request->validated();
 
         try {
             $data = [
@@ -54,7 +54,7 @@ class RemoveItemRequestController extends Controller
             return back()->with('success', 'Pengajuan penghapusan barang ditambahkan.');
         } catch (QueryException $e) {
             return back()->with('error', 'Kesalahan database saat menambahkan pengajuan.');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return back()->with('error', 'Gagal menambahkan pengajuan.');
         }
     }
@@ -73,7 +73,7 @@ class RemoveItemRequestController extends Controller
             return back()->with('success', 'Unit dikonfirmasi.');
         } catch (QueryException $e) {
             return back()->with('error', 'Kesalahan database saat memproses.');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return back()->with('error', 'Gagal memproses.');
         }
     }
@@ -94,7 +94,7 @@ class RemoveItemRequestController extends Controller
             return back()->with('success', 'Status penghapusan diperbarui.');
         } catch (QueryException $e) {
             return back()->with('error', 'Kesalahan database saat memproses.');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return back()->with('error', 'Gagal memproses.');
         }
     }

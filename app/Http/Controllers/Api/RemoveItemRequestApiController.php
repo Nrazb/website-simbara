@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Repositories\RemoveItemRequestRepositoryInterface;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\QueryException;
-use App\Models\User;
+use App\Http\Requests\StoreRemoveItemUnitRequest;
+use App\Http\Resources\ItemResource;
+use App\Http\Resources\RemoveItemRequestResource;
+use App\Http\Resources\UserResource;
 use App\Models\Item;
 use App\Models\RemoveItemRequest;
-use App\Http\Resources\RemoveItemRequestResource;
+use App\Models\User;
+use App\Repositories\RemoveItemRequestRepositoryInterface;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class RemoveItemRequestApiController extends Controller
 {
@@ -37,16 +41,14 @@ class RemoveItemRequestApiController extends Controller
         }
 
         return RemoveItemRequestResource::collection($removeItemRequests)->additional([
-            'users' => $users,
-            'items' => $items,
+            'users' => UserResource::collection($users),
+            'items' => $items ? ItemResource::collection($items) : null,
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreRemoveItemUnitRequest $request)
     {
-        $validated = $request->validate([
-            'item_id' => 'required|exists:items,id',
-        ]);
+        $validated = $request->validated();
 
         try {
             $data = [
@@ -56,6 +58,8 @@ class RemoveItemRequestApiController extends Controller
                 'unit_confirmed' => false,
             ];
             $removeItemRequest = $this->removeItemRequestRepository->create($data);
+            $removeItemRequest->load(['user', 'item']);
+
             return (new RemoveItemRequestResource($removeItemRequest))
                 ->additional(['message' => 'Pengajuan penghapusan barang ditambahkan.'])
                 ->response()
@@ -64,7 +68,7 @@ class RemoveItemRequestApiController extends Controller
             return response()->json([
                 'message' => 'Kesalahan database saat menambahkan pengajuan.',
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Gagal menambahkan pengajuan.',
             ], 500);
@@ -86,14 +90,16 @@ class RemoveItemRequestApiController extends Controller
                     ->response();
             }
             $this->removeItemRequestRepository->update($removeItemRequest->id, ['unit_confirmed' => true]);
-            return (new RemoveItemRequestResource($removeItemRequest->refresh()))
+            $removeItemRequest->refresh()->load(['user', 'item']);
+
+            return (new RemoveItemRequestResource($removeItemRequest))
                 ->additional(['message' => 'Unit dikonfirmasi.'])
                 ->response();
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Kesalahan database saat memproses.',
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Gagal memproses.',
             ], 500);
@@ -111,20 +117,22 @@ class RemoveItemRequestApiController extends Controller
             }
             $status = $request->input('status');
             $allowed = ['PROCESS', 'STORED', 'AUCTIONED'];
-            if (!in_array($status, $allowed, true)) {
+            if (! in_array($status, $allowed, true)) {
                 return response()->json([
                     'message' => 'Status tidak valid.',
                 ], 400);
             }
             $this->removeItemRequestRepository->update($removeItemRequest->id, ['status' => $status]);
-            return (new RemoveItemRequestResource($removeItemRequest->refresh()))
+            $removeItemRequest->refresh()->load(['user', 'item']);
+
+            return (new RemoveItemRequestResource($removeItemRequest))
                 ->additional(['message' => 'Status penghapusan diperbarui.'])
                 ->response();
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Kesalahan database saat memproses.',
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Gagal memproses.',
             ], 500);

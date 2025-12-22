@@ -2,28 +2,32 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Repositories\ItemRepositoryInterface;
-use App\Http\Requests\StoreItemRequestForm;
-use App\Http\Requests\UpdateItemRequestForm;
 use App\Http\Controllers\Controller;
-use App\Exports\ItemsExport;
+use App\Http\Requests\ImportItemsRequest;
+use App\Http\Requests\StoreItemRequestForm;
+use App\Http\Resources\ItemRequestResource;
+use App\Http\Resources\ItemResource;
+use App\Http\Resources\TypeResource;
+use App\Http\Resources\UserResource;
 use App\Imports\ItemsImport;
 use App\Imports\ItemsImportExcel;
 use App\Models\Item;
 use App\Models\ItemRequest;
 use App\Models\User;
+use App\Repositories\ItemRepositoryInterface;
 use App\Repositories\TypeRepositoryInterface;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Http\Resources\ItemResource;
-use App\Http\Resources\ItemRequestResource;
-use App\Http\Resources\TypeResource;
-use App\Http\Resources\UserResource;
+use Maatwebsite\Excel\Validators\ValidationException;
+use PhpOffice\PhpSpreadsheet\Reader\Exception as PhpSpreadsheetReaderException;
 
 class ItemApiController extends Controller
 {
     protected $itemRepository;
+
     protected $typeRepository;
 
     public function __construct(ItemRepositoryInterface $itemRepository, TypeRepositoryInterface $typeRepository)
@@ -52,11 +56,12 @@ class ItemApiController extends Controller
             ->get();
         $filters = [
             'user_id' => $request->input('user_id'),
-            'year'    => $request->input('year'),
+            'year' => $request->input('year'),
         ];
         $items = $this->itemRepository->all($search, $perPage, $filters);
         $unitsSelect = User::where('role', 'UNIT')->orderBy('name')->get();
         $maintenanceUnits = User::where('role', 'MAINTENANCE_UNIT')->orderBy('name')->get();
+
         return ItemResource::collection($items)->additional([
             'types' => TypeResource::collection($types),
             'users' => UserResource::collection($users),
@@ -75,6 +80,7 @@ class ItemApiController extends Controller
             })
             ->orderByDesc('created_at')
             ->get();
+
         return response()->json([
             'types' => TypeResource::collection($types),
             'item_requests' => ItemRequestResource::collection($itemRequests),
@@ -85,38 +91,53 @@ class ItemApiController extends Controller
     {
         $validated = $request->validated();
         $datas = [];
+        $createdIds = [];
         try {
-            for ($i = 1; $i <= (int) $validated['quantity']; $i++) {
-                $data = [
-                    'id' => $validated['code'] . '-' . $i,
-                    'order_number' => $i,
-                    'user_id' => $validated['user_id'],
-                    'type_id' => $validated['type_id'],
-                    'code' => $validated['code'],
-                    'name' => $validated['name'],
-                    'cost' => $validated['cost'],
-                    'acquisition_date' => $validated['acquisition_date'],
-                    'acquisition_year' => $validated['acquisition_year'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+            $createdCount = (int) $validated['quantity'];
 
-                array_push($datas, $data);
+            DB::transaction(function () use ($validated, $createdCount, &$datas, &$createdIds, $itemRequest) {
+                for ($i = 1; $i <= $createdCount; $i++) {
+                    $id = $validated['code'] . '-' . $i;
+                    $createdIds[] = $id;
+                    $datas[] = [
+                        'id' => $id,
+                        'order_number' => $i,
+                        'user_id' => $validated['user_id'],
+                        'type_id' => $validated['type_id'],
+                        'code' => $validated['code'],
+                        'name' => $validated['name'],
+                        'cost' => $validated['cost'],
+                        'acquisition_date' => $validated['acquisition_date'],
+                        'acquisition_year' => $validated['acquisition_year'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+
+                $this->itemRepository->create($datas);
+                $itemRequest->decrement('qty', $createdCount);
+            });
+
+            $itemsQuery = Item::query()->whereIn('id', $createdIds)->with(['type']);
+            if (Auth::user()?->role === 'ADMIN') {
+                $itemsQuery->with(['user']);
             }
+            $createdItems = $itemsQuery->orderBy('order_number')->get();
 
-            $this->itemRepository->create($datas);
+            $itemRequest->refresh()->load(['user', 'type']);
 
-            $itemRequest->decrement('qty', (int) $validated['quantity']);
-            return response()->json([
+            return ItemResource::collection($createdItems)->additional([
                 'message' => 'Berhasil menambahkan barang.',
-                'created_count' => (int) $validated['quantity'],
-            ], 201);
-        } catch (\Illuminate\Database\QueryException $e) {
+                'created_count' => $createdCount,
+                'item_request' => new ItemRequestResource($itemRequest),
+            ])->response()->setStatusCode(201);
+        } catch (QueryException $e) {
             if ($e->getCode() == 23000) {
                 $errorMsg = 'Kode barang sudah digunakan. Silakan gunakan kode lain.';
             } else {
                 $errorMsg = 'Terjadi kesalahan pada database. Silakan coba lagi.';
             }
+
             return response()->json([
                 'message' => $errorMsg,
             ], 422);
@@ -127,13 +148,9 @@ class ItemApiController extends Controller
         }
     }
 
-    public function import(Request $request)
+    public function import(ImportItemsRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'file' => 'required|mimes:xlsx,csv,xls'
-            ]);
-
             $ext = strtolower($request->file('file')->getClientOriginalExtension());
 
             if (in_array($ext, ['xlsx', 'xls'])) {
@@ -141,28 +158,25 @@ class ItemApiController extends Controller
             } else {
                 Excel::import(new ItemsImport, $request->file('file'));
             }
+
             return response()->json([
                 'message' => 'Import berhasil!',
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'message' => 'File yang diunggah tidak valid. Pastikan file berekstensi .xlsx, .xls, atau .csv.',
-                'errors' => $e->errors(),
-            ], 422);
-        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+        } catch (PhpSpreadsheetReaderException $e) {
             return response()->json([
                 'message' => 'Gagal membaca file. Pastikan file Excel tidak rusak atau terproteksi.',
             ], 422);
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = $e->failures();
             $messages = [];
             foreach ($failures as $failure) {
                 $messages[] = 'Baris ' . $failure->row() . ' pada kolom ' . implode(', ', $failure->attribute()) . ': ' . implode(', ', $failure->errors());
             }
+
             return response()->json([
                 'message' => 'Terdapat kesalahan pada data impor: ' . implode(' ', $messages),
             ], 422);
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Gagal menyimpan data ke database. Silakan periksa kembali isi file dan pastikan tidak ada duplikasi kode barang.',
             ], 500);

@@ -2,21 +2,27 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Repositories\MutationItemRequestRepositoryInterface;
-use App\Http\Requests\StoreMutationItemRequest;
 use App\Http\Controllers\Controller;
-use App\Repositories\ItemRepositoryInterface;
-use App\Repositories\UserRepositoryInterface;
-use Illuminate\Http\Request;
-use Illuminate\Database\QueryException;
-use App\Models\MutationItemRequest;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ConfirmMutationTargetRequest;
+use App\Http\Requests\StoreMutationItemRequest;
 use App\Http\Resources\MutationItemRequestResource;
+use App\Http\Resources\UserResource;
+use App\Models\MutationItemRequest;
+use App\Models\User;
+use App\Repositories\ItemRepositoryInterface;
+use App\Repositories\MutationItemRequestRepositoryInterface;
+use App\Repositories\UserRepositoryInterface;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class MutationItemRequestApiController extends Controller
 {
     protected $mutationItemRequestRepository;
+
     protected $itemRepository;
+
     protected $userRepository;
 
     public function __construct(MutationItemRequestRepositoryInterface $mutationItemRequestRepository, ItemRepositoryInterface $itemRepository, UserRepositoryInterface $userRepository)
@@ -32,10 +38,11 @@ class MutationItemRequestApiController extends Controller
         $mutationItemRequests = $this->mutationItemRequestRepository->all($perPage);
         $users = null;
         if (Auth::user()?->role === 'ADMIN') {
-            $users = \App\Models\User::where('role', 'UNIT')->orderBy('name')->get();
+            $users = User::where('role', 'UNIT')->orderBy('name')->get();
         }
+
         return MutationItemRequestResource::collection($mutationItemRequests)->additional([
-            'users' => $users,
+            'users' => $users ? UserResource::collection($users) : null,
         ]);
     }
 
@@ -44,6 +51,8 @@ class MutationItemRequestApiController extends Controller
         $validated = $request->validated();
         try {
             $mutationItemRequest = $this->mutationItemRequestRepository->create($validated);
+            $mutationItemRequest->load(['fromUser', 'toUser', 'item']);
+
             return (new MutationItemRequestResource($mutationItemRequest))
                 ->additional(['message' => 'Permintaan mutasi berhasil dibuat.'])
                 ->response()
@@ -51,21 +60,20 @@ class MutationItemRequestApiController extends Controller
         } catch (QueryException $e) {
             $code = $e->getCode();
             $msg = $code == 23000 ? 'Data duplikat atau referensi tidak valid.' : 'Kesalahan database. Coba lagi.';
+
             return response()->json([
                 'message' => $msg,
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Failed to create mutation item request.',
             ], 500);
         }
     }
 
-    public function confirm(Request $request, MutationItemRequest $mutationItemRequest)
+    public function confirm(ConfirmMutationTargetRequest $request, MutationItemRequest $mutationItemRequest)
     {
-        $data = $request->validate([
-            'target' => 'required|in:unit,recipient',
-        ]);
+        $data = $request->validated();
 
         $userId = Auth::user()->id;
         $field = $data['target'] === 'unit' ? 'unit_confirmed' : 'recipient_confirmed';
@@ -83,6 +91,8 @@ class MutationItemRequestApiController extends Controller
         }
 
         if ($mutationItemRequest->{$field}) {
+            $mutationItemRequest->load(['fromUser', 'toUser', 'item']);
+
             return (new MutationItemRequestResource($mutationItemRequest))
                 ->additional(['message' => 'Status sudah dikonfirmasi.'])
                 ->response();
@@ -90,14 +100,16 @@ class MutationItemRequestApiController extends Controller
 
         try {
             $this->mutationItemRequestRepository->confirm($mutationItemRequest->id, $field);
-            return (new MutationItemRequestResource($mutationItemRequest->refresh()))
+            $mutationItemRequest->refresh()->load(['fromUser', 'toUser', 'item']);
+
+            return (new MutationItemRequestResource($mutationItemRequest))
                 ->additional(['message' => 'Konfirmasi berhasil.'])
                 ->response();
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Kesalahan database saat konfirmasi.',
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Gagal mengkonfirmasi.',
             ], 500);

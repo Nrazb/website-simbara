@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ConfirmMutationTargetRequest;
 use App\Repositories\MutationItemRequestRepositoryInterface;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreMutationItemRequest;
 use App\Repositories\ItemRepositoryInterface;
@@ -10,6 +12,7 @@ use App\Repositories\UserRepositoryInterface;
 use Illuminate\Database\QueryException;
 use App\Models\MutationItemRequest;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class MutationItemRequestController extends Controller
 {
@@ -29,8 +32,8 @@ class MutationItemRequestController extends Controller
         $perPage = $request->input('per_page', 5);
         $mutationItemRequests = $this->mutationItemRequestRepository->all($perPage);
         $users = null;
-        if (\Illuminate\Support\Facades\Auth::user()?->role === 'ADMIN') {
-            $users = \App\Models\User::where('role', 'UNIT')->orderBy('name')->get();
+        if (Auth::user()?->role === 'ADMIN') {
+            $users = User::where('role', 'UNIT')->orderBy('name')->get();
         }
         return view('mutation_item_requests.index', compact('mutationItemRequests', 'users'));
     }
@@ -52,16 +55,14 @@ class MutationItemRequestController extends Controller
             $code = $e->getCode();
             $msg = $code == 23000 ? 'Data duplikat atau referensi tidak valid.' : 'Kesalahan database. Coba lagi.';
             return redirect()->back()->withInput()->with('error', $msg);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return redirect()->back()->withInput()->with('error', 'Failed to create mutation item request.');
         }
     }
 
-    public function confirm(Request $request, MutationItemRequest $mutationItemRequest)
+    public function confirm(ConfirmMutationTargetRequest $request, MutationItemRequest $mutationItemRequest)
     {
-        $data = $request->validate([
-            'target' => 'required|in:unit,recipient',
-        ]);
+        $data = $request->validated();
 
         $userId = Auth::user()->id;
         $field = $data['target'] === 'unit' ? 'unit_confirmed' : 'recipient_confirmed';
@@ -83,7 +84,7 @@ class MutationItemRequestController extends Controller
             return back()->with('success', 'Konfirmasi berhasil.');
         } catch (QueryException $e) {
             return back()->with('error', 'Kesalahan database saat konfirmasi.');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return back()->with('error', 'Gagal mengkonfirmasi.');
         }
     }

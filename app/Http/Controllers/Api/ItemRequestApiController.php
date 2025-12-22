@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Repositories\ItemRequestRepositoryInterface;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
-use App\Http\Controllers\Controller;
-use App\Models\ItemRequest;
-use App\Models\User;
-use App\Repositories\TypeRepositoryInterface;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ItemRequestResource;
 use App\Http\Resources\TypeResource;
 use App\Http\Resources\UserResource;
+use App\Models\ItemRequest;
+use App\Models\User;
+use App\Repositories\ItemRequestRepositoryInterface;
+use App\Repositories\TypeRepositoryInterface;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ItemRequestApiController extends Controller
 {
     protected $itemRequestRepository;
+
     protected $typeRepository;
 
     public function __construct(ItemRequestRepositoryInterface $itemRequestRepository, TypeRepositoryInterface $typeRepository)
@@ -95,13 +96,15 @@ class ItemRequestApiController extends Controller
 
         try {
             $itemRequest = $this->itemRequestRepository->create($validated);
+            $itemRequest->load(['user', 'type']);
+
             return (new ItemRequestResource($itemRequest))
                 ->additional(['message' => 'Usulan berhasil dibuat sebagai DRAFT.'])
                 ->response()
                 ->setStatusCode(201);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal membuat usulan: ' . $e->getMessage(),
+                'message' => 'Gagal membuat usulan: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -118,12 +121,14 @@ class ItemRequestApiController extends Controller
 
         try {
             $updated = $this->itemRequestRepository->update($id, $request->validated());
+            $updated->load(['user', 'type']);
+
             return (new ItemRequestResource($updated))
                 ->additional(['message' => 'Usulan berhasil diperbarui.'])
                 ->response();
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal memperbarui usulan: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui usulan: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -140,12 +145,13 @@ class ItemRequestApiController extends Controller
 
         try {
             $this->itemRequestRepository->delete($id);
+
             return response()->json([
                 'message' => 'Usulan berhasil dihapus.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal menghapus usulan: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus usulan: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -164,7 +170,9 @@ class ItemRequestApiController extends Controller
             'sent_at' => now(),
         ]);
 
-        return (new ItemRequestResource($item->refresh()))
+        $item->refresh()->load(['user', 'type']);
+
+        return (new ItemRequestResource($item))
             ->additional(['message' => 'Usulan berhasil dikirim.'])
             ->response();
     }

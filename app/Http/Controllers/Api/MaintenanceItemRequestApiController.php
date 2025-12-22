@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Repositories\MaintenanceItemRequestRepositoryInterface;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreMaintenanceItemRequest;
+use App\Http\Resources\MaintenanceItemRequestResource;
+use App\Http\Resources\UserResource;
+use App\Models\MaintenanceItemRequest;
+use App\Models\User;
+use App\Repositories\MaintenanceItemRequestRepositoryInterface;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\QueryException;
-use App\Models\MaintenanceItemRequest;
 use Illuminate\Support\Facades\Log;
-use App\Http\Resources\MaintenanceItemRequestResource;
+use Throwable;
 
 class MaintenanceItemRequestApiController extends Controller
 {
@@ -23,29 +27,33 @@ class MaintenanceItemRequestApiController extends Controller
     public function index(Request $request)
     {
         $maintenanceItemRequests = $this->maintenanceItemRequestRepository->all();
-        $maintenanceUnits = \App\Models\User::where('role', 'MAINTENANCE_UNIT')->orderBy('name')->get();
+        $maintenanceUnits = User::where('role', 'MAINTENANCE_UNIT')->orderBy('name')->get();
+
         return MaintenanceItemRequestResource::collection($maintenanceItemRequests)->additional([
-            'maintenance_units' => $maintenanceUnits,
+            'maintenance_units' => UserResource::collection($maintenanceUnits),
         ]);
     }
 
-    public function store(\App\Http\Requests\StoreMaintenanceItemRequest $request)
+    public function store(StoreMaintenanceItemRequest $request)
     {
         $validated = $request->validated();
         try {
             $maintenanceItemRequest = $this->maintenanceItemRequestRepository->create($validated);
+            $maintenanceItemRequest->load(['user', 'item']);
+
             return (new MaintenanceItemRequestResource($maintenanceItemRequest))
                 ->additional(['message' => 'Permintaan pemeliharaan dibuat.'])
                 ->response()
                 ->setStatusCode(201);
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             $code = $e->getCode();
             Log::error("Database error: $code");
             $msg = $code == 23000 ? 'Data duplikat atau referensi tidak valid.' : 'Kesalahan database. Coba lagi.';
+
             return response()->json([
                 'message' => $msg,
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Gagal membuat permintaan pemeliharaan.',
             ], 500);
@@ -63,19 +71,23 @@ class MaintenanceItemRequestApiController extends Controller
                 ], 403);
             }
             if ($maintenanceItemRequest->unit_confirmed) {
+                $maintenanceItemRequest->load(['user', 'item']);
+
                 return (new MaintenanceItemRequestResource($maintenanceItemRequest))
                     ->additional(['message' => 'Unit sudah dikonfirmasi.'])
                     ->response();
             }
             $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['unit_confirmed' => true]);
-            return (new MaintenanceItemRequestResource($maintenanceItemRequest->refresh()))
+            $maintenanceItemRequest->refresh()->load(['user', 'item']);
+
+            return (new MaintenanceItemRequestResource($maintenanceItemRequest))
                 ->additional(['message' => 'Konfirmasi unit berhasil.'])
                 ->response();
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Kesalahan database saat memproses tindakan.',
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Gagal memproses tindakan.',
             ], 500);
@@ -95,7 +107,7 @@ class MaintenanceItemRequestApiController extends Controller
             $current = $maintenanceItemRequest->maintenance_status;
             $value = $request->input('value');
             $allowed = ['PENDING', 'APPROVED', 'BEING_SENT', 'PROCESSING', 'COMPLETED', 'REJECTED', 'REMOVED', 'BEING_SENT_BACK'];
-            if (!in_array($value, $allowed, true)) {
+            if (! in_array($value, $allowed, true)) {
                 return response()->json([
                     'message' => 'Status pemeliharaan tidak valid.',
                 ], 400);
@@ -115,21 +127,23 @@ class MaintenanceItemRequestApiController extends Controller
                 $canUpdate = true;
             }
 
-            if (!$canUpdate) {
+            if (! $canUpdate) {
                 return response()->json([
                     'message' => 'Anda tidak diizinkan mengubah status ke tahap ini.',
                 ], 403);
             }
 
             $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['maintenance_status' => $value]);
-            return (new MaintenanceItemRequestResource($maintenanceItemRequest->refresh()))
+            $maintenanceItemRequest->refresh()->load(['user', 'item']);
+
+            return (new MaintenanceItemRequestResource($maintenanceItemRequest))
                 ->additional(['message' => 'Status pemeliharaan diperbarui.'])
                 ->response();
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Kesalahan database saat memproses tindakan.',
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Gagal memproses tindakan.',
             ], 500);
@@ -152,20 +166,22 @@ class MaintenanceItemRequestApiController extends Controller
             }
             $value = $request->input('value');
             $allowed = ['GOOD', 'DAMAGED', 'REPAIRED'];
-            if (!in_array($value, $allowed, true)) {
+            if (! in_array($value, $allowed, true)) {
                 return response()->json([
                     'message' => 'Status barang tidak valid.',
                 ], 400);
             }
             $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['item_status' => $value]);
-            return (new MaintenanceItemRequestResource($maintenanceItemRequest->refresh()))
+            $maintenanceItemRequest->refresh()->load(['user', 'item']);
+
+            return (new MaintenanceItemRequestResource($maintenanceItemRequest))
                 ->additional(['message' => 'Status barang diperbarui.'])
                 ->response();
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Kesalahan database saat memproses tindakan.',
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Gagal memproses tindakan.',
             ], 500);
@@ -188,14 +204,16 @@ class MaintenanceItemRequestApiController extends Controller
             }
             $information = (string) $request->input('information', '');
             $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['information' => $information]);
-            return (new MaintenanceItemRequestResource($maintenanceItemRequest->refresh()))
+            $maintenanceItemRequest->refresh()->load(['user', 'item']);
+
+            return (new MaintenanceItemRequestResource($maintenanceItemRequest))
                 ->additional(['message' => 'Informasi pemeliharaan diperbarui.'])
                 ->response();
         } catch (QueryException $e) {
             return response()->json([
                 'message' => 'Kesalahan database saat memproses tindakan.',
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Gagal memproses tindakan.',
             ], 500);

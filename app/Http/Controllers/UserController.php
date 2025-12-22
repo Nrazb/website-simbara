@@ -29,7 +29,7 @@ class UserController extends Controller
     {
         $validated = $request->validated();
         try {
-            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+            $validated['password'] = Hash::make($validated['password']);
             $this->userRepository->create($validated);
             return redirect()->route('users.index')->with('success', 'Berhasil menambahkan pengguna baru.');
         } catch (\Exception $e) {
@@ -43,7 +43,7 @@ class UserController extends Controller
         $validated = $request->validated();
         try {
             if (!empty($validated['password'])) {
-                $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+                $validated['password'] = Hash::make($validated['password']);
             } else {
                 unset($validated['password']);
             }
