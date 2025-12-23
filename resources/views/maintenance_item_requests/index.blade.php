@@ -28,8 +28,8 @@
     <div class="flex flex-col w-full h-full gap-4">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="font-semibold text-blue-900 text-lg">Mutasi Barang</h2>
-                <p class="font-light text-gray-400 text-sm">Data mutasi barang</p>
+                <h2 class="font-semibold text-blue-900 text-lg">Pemeliharan Barang</h2>
+                <p class="font-light text-gray-400 text-sm">Daftar data pemeliharaan barang</p>
             </div>
 
             @include('components.header')

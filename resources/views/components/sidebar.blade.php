@@ -81,8 +81,8 @@
 
                 @if(Auth::user()->role === 'ADMIN')
                 <a href="{{route('types.index')}}"
-                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
-                        hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
+                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
+                {{ Request::is('types') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
                     <i class="fa-solid fa-pen-to-square text-lg"></i>
                     <span class="text-xs md:text-base">Jenis Barang</span>
                 </a>
@@ -90,8 +90,8 @@
 
                 @if(Auth::user()->role === 'ADMIN')
                 <a href="{{route('users.index')}}"
-                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
-                        hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
+                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
+                {{ Request::is('users') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
                     <i class="fa-solid fa-user text-lg"></i>
                     <span class="text-xs md:text-base">Kelola Pengguna</span>
                 </a>
@@ -99,8 +99,8 @@
 
                 @if(Auth::user()->role === 'ADMIN')
                 <a href="{{route('reports.index')}}"
-                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition
-                        hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400 text-center">
+                class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 rounded-lg transition text-center
+                {{ Request::is('reports') ? 'bg-amber-400/10 text-yellow-300 border-l-4 border-amber-400 font-bold' : 'hover:bg-amber-400/10 hover:text-yellow-300 hover:border-l-4 hover:border-amber-400' }}">
                     <i class="fas fa-print text-lg"></i>
                     <span class="text-xs md:text-base">Cetak laporan</span>
                 </a>

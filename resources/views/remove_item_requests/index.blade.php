@@ -102,7 +102,7 @@
 
 
         <!-- Tampilan tabel di dekstop -->
-        <div class="hidden md:block overflow-x-auto">
+        <div class="md:block overflow-x-auto">
             <table class="min-w-full border-collapse text-sm text-left text-gray-600">
                 <thead class="text-gray-700 bg-gray-100 font-semibold">
                     <tr>
@@ -174,21 +174,6 @@
                     @endforeach
                 </tbody>
             </table>
-        </div>
-
-        <!-- Tampilan kartu untuk bentuk mobile-->
-        <div class="block md:hidden space-y-3">
-            <div class="border border-gray-200 rounded-xl p-3 shadow-sm">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-semibold text-gray-800 text-lg">jaosjfod</h3>
-                    <input type="checkbox" class="h-4 w-4">
-                </div>
-                <div class="mt-2 text-sm text-gray-600 space-y-1">
-                    <p><span class="font-medium">Unit:</span> kolom</p>
-                    <p><span class="font-medium">Status Penghapusan:</span> bahfadfh</p>
-                    <p><span class="font-medium">Konfirmasi Unit:</span> kolom</p>
-                </div>
-            </div>
         </div>
 
         <div class="flex flex-col sm:flex-row justify-between items-center mt-4 text-xs sm:text-sm text-gray-500 gap-3">

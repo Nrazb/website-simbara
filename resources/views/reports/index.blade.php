@@ -5,8 +5,8 @@
 @section('content')
 <div class="flex items-center justify-between mb-4">
     <div>
-        <h2 class="font-semibold text-blue-900 text-lg">Penghapusan Barang</h2>
-        <p class="font-light text-gray-400 text-sm">Data penghapusan barang</p>
+        <h2 class="font-semibold text-blue-900 text-lg">Pelaporan</h2>
+        <p class="font-light text-gray-400 text-sm">Cetak laporan yang diinginkan</p>
     </div>
 
     @include('components.header')
