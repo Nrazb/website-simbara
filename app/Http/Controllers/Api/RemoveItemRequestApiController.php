@@ -27,6 +27,7 @@ class RemoveItemRequestApiController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
         $users = User::whereIn('id', function ($query) {
             $query->select('user_id')->from('remove_item_requests');
         })
@@ -36,8 +37,8 @@ class RemoveItemRequestApiController extends Controller
         $removeItemRequests = $this->removeItemRequestRepository->all();
 
         $items = null;
-        if (Auth::user()->role !== 'ADMIN') {
-            $items = Item::where('user_id', Auth::id())->latest()->get();
+        if ($user->role !== 'ADMIN') {
+            $items = Item::where('user_id', $user->id)->latest()->get();
         }
 
         return RemoveItemRequestResource::collection($removeItemRequests)->additional([
@@ -48,11 +49,12 @@ class RemoveItemRequestApiController extends Controller
 
     public function store(StoreRemoveItemUnitRequest $request)
     {
+        $user = Auth::user();
         $validated = $request->validated();
 
         try {
             $data = [
-                'user_id' => Auth::id(),
+                'user_id' => $user->id,
                 'item_id' => $validated['item_id'],
                 'status' => 'PROCESS',
                 'unit_confirmed' => false,

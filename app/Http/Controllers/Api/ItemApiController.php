@@ -42,14 +42,16 @@ class ItemApiController extends Controller
         $search = $request->input('search');
         $perPage = $request->input('per_page', 5);
 
+        $user = Auth::user();
+
         $users = User::whereIn('id', function ($query) {
             $query->select('user_id')->from('items');
         })
             ->orderBy('name')
             ->get();
         $years = Item::selectRaw('acquisition_year as year')
-            ->when(Auth::user()->role !== 'ADMIN', function ($q) {
-                $q->where('user_id', Auth::id());
+            ->when($user->role !== 'ADMIN', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
             })
             ->distinct()
             ->orderBy('year', 'desc')
@@ -73,10 +75,16 @@ class ItemApiController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
         $types = $this->typeRepository->all();
         $itemRequests = ItemRequest::where('qty', '>', 0)->with('type')
-            ->when(Auth::user()->role !== 'ADMIN', function ($q) {
-                $q->where('user_id', Auth::user()->id);
+            ->when($user->role === 'ADMIN', function ($q) use ($user) {
+                $q->where(function ($sq) use ($user) {
+                    $sq->whereNotNull('sent_at')
+                        ->orWhere('user_id', $user->id);
+                });
+            }, function ($q) use ($user) {
+                $q->where('user_id', $user->id);
             })
             ->orderByDesc('created_at')
             ->get();
@@ -89,6 +97,7 @@ class ItemApiController extends Controller
 
     public function store(StoreItemRequestForm $request, ItemRequest $itemRequest)
     {
+        $user = Auth::user();
         $validated = $request->validated();
         $datas = [];
         $createdIds = [];
@@ -119,7 +128,7 @@ class ItemApiController extends Controller
             });
 
             $itemsQuery = Item::query()->whereIn('id', $createdIds)->with(['type']);
-            if (Auth::user()?->role === 'ADMIN') {
+            if ($user->role === 'ADMIN') {
                 $itemsQuery->with(['user']);
             }
             $createdItems = $itemsQuery->orderBy('order_number')->get();

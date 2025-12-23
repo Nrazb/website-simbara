@@ -33,6 +33,7 @@ class ItemController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
         $types = $this->typeRepository->all();
         $search = $request->input('search');
         $perPage = $request->input('per_page', 5);
@@ -43,8 +44,8 @@ class ItemController extends Controller
             ->orderBy('name')
             ->get();
         $years = Item::selectRaw('acquisition_year as year')
-            ->when(Auth::user()->role !== 'ADMIN', function ($q) {
-                $q->where('user_id', Auth::id());
+            ->when($user->role !== 'ADMIN', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
             })
             ->distinct()
             ->orderBy('year', 'desc')
@@ -61,10 +62,16 @@ class ItemController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
         $types = $this->typeRepository->all();
         $itemRequests = ItemRequest::where('qty', '>', 0)->with('type')
-            ->when(Auth::user()->role !== 'ADMIN', function ($q) {
-                $q->where('user_id', Auth::user()->id);
+            ->when($user->role === 'ADMIN', function ($q) use ($user) {
+                $q->where(function ($sq) use ($user) {
+                    $sq->whereNotNull('sent_at')
+                        ->orWhere('user_id', $user->id);
+                });
+            }, function ($q) use ($user) {
+                $q->where('user_id', $user->id);
             })
             ->orderByDesc('created_at')
             ->get();

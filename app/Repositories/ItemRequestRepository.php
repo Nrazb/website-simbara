@@ -13,20 +13,33 @@ class ItemRequestRepository implements ItemRequestRepositoryInterface
             ->with(['type'])
             ->withTrashed();
 
-        if (Auth::user() && Auth::user()->role === 'ADMIN') {
+        $user = Auth::user();
+
+        if ($user->role === 'ADMIN') {
+            $query->where(function ($q) use ($user) {
+                $q->whereNotNull('sent_at')
+                    ->orWhere('user_id', $user->id);
+            });
+        } else {
+            $query->where('user_id', $user->id);
+        }
+
+        if ($user->role === 'ADMIN') {
             $query->with(['user']);
         }
 
         $search = trim((string) request()->input('search', ''));
         if ($search !== '') {
-            $query->whereAny(['name', 'detail', 'reason', 'qty'], 'like', "%$search%")
-                ->orWhereHas('type', function ($q) use ($search) {
-                    $q->where('name', 'like', "%$search%");
-                });
+            $query->where(function ($q) use ($search) {
+                $q->whereAny(['name', 'detail', 'reason', 'qty'], 'like', "%$search%")
+                    ->orWhereHas('type', function ($tq) use ($search) {
+                        $tq->where('name', 'like', "%$search%");
+                    });
+            });
         }
 
         $userId = request()->input('user_id');
-        if (!empty($userId) && Auth::user() && Auth::user()->role === 'ADMIN') {
+        if (!empty($userId) && $user->role === 'ADMIN') {
             $query->where('user_id', $userId);
         }
 
@@ -55,7 +68,7 @@ class ItemRequestRepository implements ItemRequestRepositoryInterface
             $query->whereDate('created_at', '<=', $end);
         }
 
-        if (Auth::user() && Auth::user()->role !== 'ADMIN') {
+        if ($user->role !== 'ADMIN') {
             $query->select([
                 'id',
                 'user_id',

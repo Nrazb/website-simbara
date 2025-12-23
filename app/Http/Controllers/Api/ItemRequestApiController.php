@@ -33,24 +33,42 @@ class ItemRequestApiController extends Controller
 
         $types = $this->typeRepository->all();
 
-        $users = User::whereIn('id', function ($query) {
+        $currentUser = Auth::user();
+
+        $users = User::whereIn('id', function ($query) use ($currentUser) {
             $query->select('user_id')->from('item_requests');
+
+            if ($currentUser->role === 'ADMIN') {
+                $query->where(function ($q) use ($currentUser) {
+                    $q->whereNotNull('sent_at')
+                        ->orWhere('user_id', $currentUser->id);
+                });
+            } else {
+                $query->where('user_id', $currentUser->id);
+            }
         })
             ->orderBy('name')
             ->get();
 
-        $years = ItemRequest::selectRaw('YEAR(created_at) as year')
-            ->when(Auth::user()->role !== 'ADMIN', function ($query) {
-                $query->where('user_id', Auth::user()->id);
-            })
+        $yearsQuery = ItemRequest::selectRaw('YEAR(created_at) as year');
+        if ($currentUser->role === 'ADMIN') {
+            $yearsQuery->where(function ($q) use ($currentUser) {
+                $q->whereNotNull('sent_at')
+                    ->orWhere('user_id', $currentUser->id);
+            });
+        } else {
+            $yearsQuery->where('user_id', $currentUser->id);
+        }
+
+        $years = $yearsQuery
             ->distinct()
             ->orderBy('year', 'desc')
             ->get();
 
         $baseQuery = $this->itemRequestRepository->all();
 
-        if (Auth::user()->role !== 'ADMIN') {
-            $baseQuery->where('user_id', Auth::user()->id);
+        if ($currentUser->role !== 'ADMIN') {
+            $baseQuery->where('user_id', $currentUser->id);
             $baseQuery->select([
                 'id',
                 'user_id',
@@ -90,9 +108,10 @@ class ItemRequestApiController extends Controller
 
     public function store(StoreItemRequest $request)
     {
+        $user = Auth::user();
         $validated = $request->validated();
         $validated['sent_at'] = null;
-        $validated['user_id'] = Auth::id();
+        $validated['user_id'] = $user->id;
 
         try {
             $itemRequest = $this->itemRequestRepository->create($validated);
@@ -111,7 +130,14 @@ class ItemRequestApiController extends Controller
 
     public function update(UpdateItemRequest $request, $id)
     {
+        $user = Auth::user();
         $item = ItemRequest::findOrFail($id);
+
+        if ($item->user_id !== $user->id) {
+            return response()->json([
+                'message' => 'Akses ditolak.',
+            ], 403);
+        }
 
         if ($item->sent_at !== null) {
             return response()->json([
@@ -135,7 +161,14 @@ class ItemRequestApiController extends Controller
 
     public function destroy($id)
     {
+        $user = Auth::user();
         $item = ItemRequest::findOrFail($id);
+
+        if ($item->user_id !== $user->id) {
+            return response()->json([
+                'message' => 'Akses ditolak.',
+            ], 403);
+        }
 
         if ($item->sent_at !== null) {
             return response()->json([
@@ -158,7 +191,14 @@ class ItemRequestApiController extends Controller
 
     public function send($id)
     {
+        $user = Auth::user();
         $item = ItemRequest::findOrFail($id);
+
+        if ($item->user_id !== $user->id) {
+            return response()->json([
+                'message' => 'Akses ditolak.',
+            ], 403);
+        }
 
         if ($item->sent_at !== null) {
             return response()->json([
@@ -180,6 +220,13 @@ class ItemRequestApiController extends Controller
     public function show($id)
     {
         $item = ItemRequest::with(['user', 'type'])->findOrFail($id);
+
+        $user = Auth::user();
+        if ($item->user_id !== $user->id && ! ($user->role === 'ADMIN' && $item->sent_at !== null)) {
+            return response()->json([
+                'message' => 'Akses ditolak.',
+            ], 403);
+        }
 
         return new ItemRequestResource($item);
     }

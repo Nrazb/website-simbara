@@ -34,10 +34,11 @@ class MutationItemRequestApiController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
         $perPage = $request->input('per_page', 5);
         $mutationItemRequests = $this->mutationItemRequestRepository->all($perPage);
         $users = null;
-        if (Auth::user()?->role === 'ADMIN') {
+        if ($user->role === 'ADMIN') {
             $users = User::where('role', 'UNIT')->orderBy('name')->get();
         }
 
@@ -75,7 +76,8 @@ class MutationItemRequestApiController extends Controller
     {
         $data = $request->validated();
 
-        $userId = Auth::user()->id;
+        $user = Auth::user();
+        $userId = $user->id;
         $field = $data['target'] === 'unit' ? 'unit_confirmed' : 'recipient_confirmed';
 
         if ($data['target'] === 'unit' && $userId !== $mutationItemRequest->from_user_id) {

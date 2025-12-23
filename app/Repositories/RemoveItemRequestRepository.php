@@ -12,12 +12,14 @@ class RemoveItemRequestRepository implements RemoveItemRequestRepositoryInterfac
         $perPage = request()->input('per_page', 5);
         $query = RemoveItemRequest::with(['user', 'item']);
 
-        if (Auth::user() && Auth::user()->role !== 'ADMIN') {
-            $query->where('user_id', Auth::id());
+        $user = Auth::user();
+
+        if ($user->role !== 'ADMIN') {
+            $query->where('user_id', $user->id);
         }
 
         $userId = request()->input('user_id');
-        if (!empty($userId) && Auth::user() && Auth::user()->role === 'ADMIN') {
+        if (!empty($userId) && $user->role === 'ADMIN') {
             $query->where('user_id', $userId);
         }
 

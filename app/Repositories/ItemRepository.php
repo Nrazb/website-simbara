@@ -9,12 +9,13 @@ class ItemRepository implements ItemRepositoryInterface
 {
     public function all($search = null, $perPage = 5, $filters=[])
     {
+        $user = Auth::user();
         $query = Item::query()->withTrashed()->with(['type']);
 
-        if (Auth::user() && Auth::user()->role === 'ADMIN') {
+        if ($user->role === 'ADMIN') {
             $query->with(['user']);
         } else {
-            $query->where('user_id', Auth::id());
+            $query->where('user_id', $user->id);
         }
 
         $search = trim((string) (request()->input('search', $search ?? '')));
@@ -28,7 +29,7 @@ class ItemRepository implements ItemRepositoryInterface
         }
 
         $userId = request()->input('user_id');
-        if (!empty($userId) && Auth::user() && Auth::user()->role === 'ADMIN') {
+        if (!empty($userId) && $user->role === 'ADMIN') {
             $query->where('user_id', $userId);
         }
 
@@ -55,7 +56,7 @@ class ItemRepository implements ItemRepositoryInterface
             $query->where('cost', '<=', (float) $maxCost);
         }
 
-        if (Auth::user() && Auth::user()->role !== 'ADMIN') {
+        if ($user->role !== 'ADMIN') {
             $query->select([
                 'id',
                 'type_id',

@@ -22,7 +22,12 @@ class DashboardApiController extends Controller
         $itemQuery = Item::latest();
         $itemRequestQuery = ItemRequest::with(['type', 'user'])->latest();
 
-        if (!$isAdmin) {
+        if ($isAdmin) {
+            $itemRequestQuery->where(function ($q) use ($user) {
+                $q->whereNotNull('sent_at')
+                    ->orWhere('user_id', $user->id);
+            });
+        } else {
             $itemRequestQuery->where('user_id', $user->id);
             $itemQuery->where('user_id', $user->id);
         }
@@ -30,7 +35,16 @@ class DashboardApiController extends Controller
         $item = $itemQuery->take(5)->get();
         $itemRequest = $itemRequestQuery->take(5)->get();
         $totalItems = Item::count();
-        $totalRequest = ItemRequest::count();
+        $totalRequestQuery = ItemRequest::query();
+        if ($isAdmin) {
+            $totalRequestQuery->where(function ($q) use ($user) {
+                $q->whereNotNull('sent_at')
+                    ->orWhere('user_id', $user->id);
+            });
+        } else {
+            $totalRequestQuery->where('user_id', $user->id);
+        }
+        $totalRequest = $totalRequestQuery->count();
         $totalMutation = MutationItemRequest::count();
         $totalMaintenance = MaintenanceItemRequest::count();
         $totalRemove = RemoveItemRequest::count();

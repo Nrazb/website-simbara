@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\ItemRequest;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -26,10 +27,21 @@ class ItemRequestExport implements FromCollection, WithHeadings, WithEvents, Wit
 
     public function collection()
     {
-        return ItemRequest::withTrashed()
+        $query = ItemRequest::withTrashed()
             ->with(['user', 'type'])
-            ->whereBetween('created_at', [$this->start, $this->end])
-            ->get()
+            ->whereBetween('created_at', [$this->start, $this->end]);
+
+        $user = Auth::user();
+        if ($user->role === 'ADMIN') {
+            $query->where(function ($q) use ($user) {
+                $q->whereNotNull('sent_at')
+                    ->orWhere('user_id', $user->id);
+            });
+        } else {
+            $query->where('user_id', $user->id);
+        }
+
+        return $query->get()
             ->map(function ($row) {
 
                 return [
