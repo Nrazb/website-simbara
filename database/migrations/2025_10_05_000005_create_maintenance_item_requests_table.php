@@ -20,11 +20,14 @@ return new class extends Migration
                 'PENDING',
                 'APPROVED',
                 'BEING_SENT',
+                'BEING_RECEIVED',
                 'PROCESSING',
-                'COMPLETED',
+                'FIINISHED',
                 'REJECTED',
                 'REMOVED',
                 'BEING_SENT_BACK',
+                'BEING_RECEIVED_BACK',
+                'COMPLETED',
             ])->default('PENDING');
             $table->boolean('unit_confirmed')->default(false);
             $table->timestamps();

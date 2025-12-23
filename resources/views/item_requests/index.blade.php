@@ -458,7 +458,7 @@
             document.getElementById("show_type").innerText = data.type?.name ?? '-';
             document.getElementById("show_reason").innerText = data.reason;
             document.getElementById("show_user").innerText = data.user?.name ?? '-';
-            document.getElementById("show_created").innerText = data.created_at;
+            document.getElementById("show_created").innerText = data.created_at ? new Date(data.created_at).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
             document.getElementById("show_sent").innerText = data.sent_at ?? '-';
 
             document.getElementById("showModal").classList.remove("hidden");

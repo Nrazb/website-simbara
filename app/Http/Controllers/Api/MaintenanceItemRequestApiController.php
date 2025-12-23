@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMaintenanceItemRequest;
+use App\Http\Requests\UpdateMaintenanceItemRequest;
 use App\Http\Resources\MaintenanceItemRequestResource;
 use App\Http\Resources\UserResource;
 use App\Models\MaintenanceItemRequest;
@@ -77,7 +78,20 @@ class MaintenanceItemRequestApiController extends Controller
                     ->additional(['message' => 'Unit sudah dikonfirmasi.'])
                     ->response();
             }
-            $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['unit_confirmed' => true]);
+
+            $status = $maintenanceItemRequest->maintenance_status;
+            if (! in_array($status, ['REJECTED', 'REMOVED', 'COMPLETED', 'BEING_RECEIVED_BACK'], true)) {
+                return response()->json([
+                    'message' => 'Konfirmasi hanya dapat dilakukan pada status tertentu.',
+                ], 400);
+            }
+
+            $payload = ['unit_confirmed' => true];
+            if ($status === 'BEING_RECEIVED_BACK') {
+                $payload['maintenance_status'] = 'COMPLETED';
+            }
+
+            $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, $payload);
             $maintenanceItemRequest->refresh()->load(['user', 'item']);
 
             return (new MaintenanceItemRequestResource($maintenanceItemRequest))
@@ -106,7 +120,19 @@ class MaintenanceItemRequestApiController extends Controller
 
             $current = $maintenanceItemRequest->maintenance_status;
             $value = $request->input('value');
-            $allowed = ['PENDING', 'APPROVED', 'BEING_SENT', 'PROCESSING', 'COMPLETED', 'REJECTED', 'REMOVED', 'BEING_SENT_BACK'];
+            $allowed = [
+                'PENDING',
+                'APPROVED',
+                'BEING_SENT',
+                'BEING_RECEIVED',
+                'PROCESSING',
+                'FIINISHED',
+                'REJECTED',
+                'REMOVED',
+                'BEING_SENT_BACK',
+                'BEING_RECEIVED_BACK',
+                'COMPLETED',
+            ];
             if (! in_array($value, $allowed, true)) {
                 return response()->json([
                     'message' => 'Status pemeliharaan tidak valid.',
@@ -114,16 +140,33 @@ class MaintenanceItemRequestApiController extends Controller
             }
 
             $canUpdate = false;
-            if ($current === 'PENDING' && in_array($value, ['APPROVED', 'REJECTED'], true) && $user->role === 'MAINTENANCE_UNIT') {
-                $canUpdate = true;
+
+            $isMaintenanceUnit = $user->role === 'MAINTENANCE_UNIT';
+            $isOwner = $user->id === $maintenanceItemRequest->user_id && $user->role !== 'MAINTENANCE_UNIT';
+
+            if ($isMaintenanceUnit && (int) $maintenanceItemRequest->maintenance_user_id !== (int) $user->id) {
+                return response()->json([
+                    'message' => 'Akses ditolak: hanya unit pemeliharaan yang ditugaskan dapat mengubah status.',
+                ], 403);
             }
-            if ($current === 'APPROVED' && $value === 'BEING_SENT' && $user->id === $maintenanceItemRequest->user_id) {
+
+            if ($current === 'PENDING' && in_array($value, ['APPROVED', 'REJECTED'], true) && $isMaintenanceUnit) {
                 $canUpdate = true;
-            }
-            if ($current === 'BEING_SENT' && in_array($value, ['PROCESSING', 'BEING_SENT_BACK'], true) && $user->id === $maintenanceItemRequest->user_id) {
+            } elseif ($current === 'PENDING' && $value === 'BEING_SENT' && $isOwner) {
                 $canUpdate = true;
-            }
-            if (in_array($current, ['PROCESSING', 'BEING_SENT_BACK'], true) && in_array($value, ['COMPLETED', 'REJECTED', 'REMOVED'], true) && $user->role === 'MAINTENANCE_UNIT') {
+            } elseif ($current === 'APPROVED' && $value === 'BEING_SENT' && ($isOwner || $isMaintenanceUnit)) {
+                $canUpdate = true;
+            } elseif ($current === 'BEING_SENT' && $value === 'BEING_RECEIVED' && $isMaintenanceUnit) {
+                $canUpdate = true;
+            } elseif ($current === 'BEING_RECEIVED' && $value === 'PROCESSING' && $isMaintenanceUnit) {
+                $canUpdate = true;
+            } elseif ($current === 'PROCESSING' && in_array($value, ['FIINISHED', 'REJECTED', 'REMOVED'], true) && $isMaintenanceUnit) {
+                $canUpdate = true;
+            } elseif (in_array($current, ['FIINISHED', 'REJECTED'], true) && $value === 'BEING_SENT_BACK' && $isMaintenanceUnit) {
+                $canUpdate = true;
+            } elseif ($current === 'BEING_SENT_BACK' && $value === 'BEING_RECEIVED_BACK' && $isOwner) {
+                $canUpdate = true;
+            } elseif ($current === 'BEING_RECEIVED_BACK' && $value === 'COMPLETED' && $isOwner) {
                 $canUpdate = true;
             }
 
@@ -133,8 +176,15 @@ class MaintenanceItemRequestApiController extends Controller
                 ], 403);
             }
 
-            $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['maintenance_status' => $value]);
+            $maintenanceItemRequest->maintenance_status = $value;
+            $maintenanceItemRequest->save();
             $maintenanceItemRequest->refresh()->load(['user', 'item']);
+
+            if ($maintenanceItemRequest->maintenance_status !== $value) {
+                return response()->json([
+                    'message' => 'Status pemeliharaan gagal diperbarui.',
+                ], 500);
+            }
 
             return (new MaintenanceItemRequestResource($maintenanceItemRequest))
                 ->additional(['message' => 'Status pemeliharaan diperbarui.'])
@@ -164,6 +214,11 @@ class MaintenanceItemRequestApiController extends Controller
                     'message' => 'Perubahan tidak diizinkan setelah konfirmasi unit.',
                 ], 400);
             }
+            if ($maintenanceItemRequest->maintenance_status !== 'PROCESSING') {
+                return response()->json([
+                    'message' => 'Status barang hanya dapat diperbarui saat tahap diproses.',
+                ], 400);
+            }
             $value = $request->input('value');
             $allowed = ['GOOD', 'DAMAGED', 'REPAIRED'];
             if (! in_array($value, $allowed, true)) {
@@ -188,7 +243,7 @@ class MaintenanceItemRequestApiController extends Controller
         }
     }
 
-    public function updateInformation(Request $request, MaintenanceItemRequest $maintenanceItemRequest)
+    public function updateInformation(UpdateMaintenanceItemRequest $request, MaintenanceItemRequest $maintenanceItemRequest)
     {
         $user = Auth::user();
         try {
@@ -202,7 +257,15 @@ class MaintenanceItemRequestApiController extends Controller
                     'message' => 'Perubahan tidak diizinkan setelah konfirmasi unit.',
                 ], 400);
             }
-            $information = (string) $request->input('information', '');
+
+            if (! in_array($maintenanceItemRequest->maintenance_status, ['COMPLETED', 'REJECTED', 'REMOVED', 'FIINISHED'], true)) {
+                return response()->json([
+                    'message' => 'Informasi hanya dapat diubah pada status tertentu.',
+                ], 400);
+            }
+
+            $validated = $request->validated();
+            $information = (string) ($validated['information'] ?? '');
             $this->maintenanceItemRequestRepository->update($maintenanceItemRequest->id, ['information' => $information]);
             $maintenanceItemRequest->refresh()->load(['user', 'item']);
 

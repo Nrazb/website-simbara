@@ -51,6 +51,11 @@ class Item extends Model
     {
         return $this->hasMany(MaintenanceItemRequest::class, 'item_id');
     }
+
+    public function latestMaintenanceItemRequest()
+    {
+        return $this->hasOne(MaintenanceItemRequest::class, 'item_id')->latestOfMany()->withTrashed();
+    }
     public function removeItemRequests()
     {
         return $this->hasMany(RemoveItemRequest::class, 'item_id');

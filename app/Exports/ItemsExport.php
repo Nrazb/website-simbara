@@ -27,25 +27,25 @@ class ItemsExport implements FromCollection, WithHeadings, WithEvents, WithCusto
     public function collection()
     {
         return Item::withTrashed()
-            ->with(['user', 'type', 'maintenanceUnit'])
+            ->with(['user', 'type', 'latestMaintenanceItemRequest.maintenanceUnit'])
             ->whereBetween('created_at', [$this->start, $this->end])
             ->get()
             ->map(function ($row) {
                 return [
-                    'ITEM ID'               => $row->id,
-                    'USER'                  => $row->user->name ?? '-',
-                    'TYPE'                  => $row->type->name ?? '-',
-                    'MAINTENANCE UNIT'      => $row->maintenanceUnit->name ?? '-',
-                    'CODE'                  => $row->code,
-                    'NUP'                   => $row->order_number,
-                    'ITEM NAME'             => $row->name,
-                    'COST'                  => $row->cost,
-                    'ACQUISITION DATE'      => $row->acquisition_date,
-                    'ACQUISITION YEAR'      => $row->acquisition_year,
-                    'STATUS ITEM'           => $row->status,
-                    'CREATED AT'            => $row->created_at?->format('d-m-Y'),
-                    'UPDATED AT'            => $row->updated_at?->format('d-m-Y'),
-                    'DELETED AT'            => $row->deleted_at?->format('d-m-Y') ?? '-',
+                    'ID Barang' => $row->id,
+                    'Unit' => $row->user->name ?? '-',
+                    'Jenis Barang' => $row->type->name ?? '-',
+                    'Unit Pemeliharaan Terakhir' => $row->latestMaintenanceItemRequest?->maintenanceUnit?->name ?? '-',
+                    'Kode Barang' => $row->code,
+                    'NUP' => $row->order_number,
+                    'Nama Barang' => $row->name,
+                    'Harga' => $row->cost,
+                    'Tanggal Perolehan' => $row->acquisition_date,
+                    'Tahun Perolehan' => $row->acquisition_year,
+                    'Status Barang' => $row->status,
+                    'Tanggal Dibuat' => $row->created_at?->format('d-m-Y'),
+                    'Tanggal Diperbarui' => $row->updated_at?->format('d-m-Y'),
+                    'Tanggal Dihapus' => $row->deleted_at?->format('d-m-Y') ?? '-',
                 ];
             });
     }
@@ -53,20 +53,20 @@ class ItemsExport implements FromCollection, WithHeadings, WithEvents, WithCusto
     public function headings(): array
     {
         return [
-            'Item id',
-            'User',
-            'Type',
-            'Maintenance unit',
-            'Code',
-            'Nup',
-            'Item name',
-            'Cost',
-            'Acquisition date',
-            'Acquisition year',
-            'Status item',
-            'Created at',
-            'Updated at',
-            'Deleted at'
+            'ID Barang',
+            'Unit',
+            'Jenis Barang',
+            'Unit Pemeliharaan Terakhir',
+            'Kode Barang',
+            'NUP',
+            'Nama Barang',
+            'Harga',
+            'Tanggal Perolehan',
+            'Tahun Perolehan',
+            'Status Barang',
+            'Tanggal Dibuat',
+            'Tanggal Diperbarui',
+            'Tanggal Dihapus',
         ];
     }
 

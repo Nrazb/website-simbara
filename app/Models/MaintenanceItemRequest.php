@@ -27,6 +27,13 @@ class MaintenanceItemRequest extends Model
         ]);
     }
 
+    public function maintenanceUnit()
+    {
+        return $this->belongsTo(User::class, 'maintenance_user_id')->withDefault([
+            'name' => '-',
+        ]);
+    }
+
     public function item()
     {
         return $this->belongsTo(Item::class, 'item_id')->withDefault([
